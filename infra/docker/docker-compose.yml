@@ -1,0 +1,35 @@
+# Local development datastores ONLY. Cloud environments (dev/staging/prod) use
+# Terraform-managed RDS Postgres and ElastiCache Redis (infra/terraform).
+# Synthetic data only in these containers — never real user data.
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: saath-postgres
+    environment:
+      POSTGRES_USER: saath
+      POSTGRES_PASSWORD: saath_dev_password
+      POSTGRES_DB: saath
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - saath-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U saath']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: saath-redis
+    ports:
+      - '127.0.0.1:6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  saath-pgdata:

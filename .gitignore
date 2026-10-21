@@ -1,0 +1,19 @@
+# secrets & local config
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.claude/settings.local.json
+kimi-settings.json
+
+# deps & builds
+node_modules/
+.next/
+dist/
+build/
+__pycache__/
+.venv/
+.terraform/
+*.tfstate*
+coverage/

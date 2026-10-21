@@ -1,0 +1,27 @@
+{
+  "name": "saath",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.18.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm -r --if-present --parallel run dev",
+    "build": "pnpm -r --if-present run build",
+    "test": "pnpm -r --if-present run test",
+    "test:py": "cd services/agents && uv run pytest && cd ../matching && uv run pytest",
+    "lint": "eslint . && pnpm -r --if-present run lint",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "format": "prettier --check .",
+    "db:migrate": "pnpm --filter @saath/api run db:migrate",
+    "db:seed": "pnpm --filter @saath/api run db:seed",
+    "security": "node scripts/security-scan.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^9.37.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0"
+  }
+}

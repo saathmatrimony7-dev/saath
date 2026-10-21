@@ -1,0 +1,12 @@
+{
+  "common": {
+    "appName": "Saath",
+    "loading": "Loading…",
+    "error": "Something went wrong. Please try again."
+  },
+  "auth": {
+    "otpRequest": "Send OTP",
+    "otpVerify": "Verify",
+    "otpSent": "We sent a code to your phone."
+  }
+}

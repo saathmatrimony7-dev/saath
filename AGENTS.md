@@ -1,0 +1,62 @@
+# AGENTS.md — Saath (Agentic AI Matrimony Platform)
+
+You are the coding agent building this project. Read this file, then `docs/DESIGN.md` in full, before writing any code.
+
+## Ground rules
+
+- `docs/DESIGN.md` is the source of truth (architecture, data model, AI agents, security, build phases).
+- Build strictly in the phase order of DESIGN.md §19 (P0 → P1 → …). At the end of each phase, check every exit criterion and report pass/fail with evidence. Don't start the next phase until all pass and the developer says go.
+- Work in **small steps**: plan → show the plan → implement → run tests → summarise what changed. Commit after each working step with a clear message.
+- Record design decisions or deviations as ADRs in `docs/adr/NNNN-title.md`.
+- If the design is unclear or contradicts itself, stop and ask. Don't guess on security, privacy or payments.
+
+## Roles (follow these checklists)
+
+The files in `.claude/agents/` describe specialist roles: architect, backend-engineer, frontend-engineer, ai-agent-engineer, matching-engineer, devops-engineer, qa-engineer, security-reviewer, privacy-reviewer, red-team-tester.
+
+- Before each task, read the matching role file and follow its rules.
+- After each feature, do a separate **review pass** as `security-reviewer` and `privacy-reviewer` (read their files, review the diff, list findings by severity). Fix all High/Critical findings before moving on.
+- After any change to the app's AI agents or prompts, do a `red-team-tester` pass.
+- If subagents are available in this tool, you may delegate a role to a subagent; otherwise do the passes yourself, one after another.
+
+## Two different AI models — don't mix them
+
+- **You (the coding agent)** run on Kimi. You are only a development tool.
+- **The product's in-app AI** (onboarding agent, matchmaker, screening broker, moderation, etc.) uses the **Claude API only** (Anthropic SDK, through the LLM Gateway, model names from config: `LLM_MODEL_SMALL`, `LLM_MODEL_MID`, `LLM_MODEL_LARGE`). Never add any other LLM provider to the application code.
+
+## Stack
+
+- Web/admin: Next.js + TypeScript + Tailwind + next-intl
+- Core API: NestJS modular monolith (`services/api/src/modules/*`), Prisma, Zod
+- Agents & matching: Python 3.12, FastAPI (internal only), Anthropic SDK, Pydantic v2
+- Data: Postgres 16 + pgvector (row-level security on every user-data table), Redis, S3, SQS/EventBridge
+- Infra: AWS ap-south-1 (Mumbai), Terraform, ECS Fargate, GitHub Actions with OIDC
+
+## Commands (create in P0 and keep working)
+
+- `pnpm install` / `pnpm dev` / `pnpm test` / `pnpm lint` / `pnpm typecheck`
+- `pnpm db:migrate` / `pnpm db:seed` (synthetic data only)
+- `cd services/agents && uv run pytest`
+- `make security` → semgrep + gitleaks + trivy + dependency audit
+
+## Non-negotiable rules
+
+1. Never commit secrets, API keys, real user data or `.env` files. Use `.env.example` only; real keys go in AWS Secrets Manager or a git-ignored `.env.local`.
+2. Every user-data table has Postgres row-level security **and** service-layer authorisation. Every new endpoint gets tests: owner allowed, other user denied, anonymous denied, admin access audited.
+3. Validate all input with Zod/Pydantic and reject unknown fields.
+4. All LLM calls go through the LLM Gateway (redaction, budgets, logging). No direct SDK calls elsewhere.
+5. The app's AI agents act only via allow-listed internal tools with a scoped token. No agent gets DB credentials.
+6. **No raw user text ever passes between two users' agents.** Screening uses structured, schema-validated data only (DESIGN.md §7). Write a test that proves it.
+7. Treat all user-written content as untrusted data in prompts. No secrets or internal policy in prompts.
+8. Never log PII, OTPs, tokens or message bodies. Use the redaction logger.
+9. Sensitive fields (`*_enc`) use field-level encryption. Never store KYC document images after verification.
+10. Never infer religion, community or caste. They are user-declared filters only.
+11. Payment and subscription state comes only from verified webhooks/server checks, never from the client.
+12. Webhooks: verify signature, store `event_id` for idempotency, process in a transaction.
+13. Model names, prices, limits and thresholds are config, not hard-coded.
+14. All UI text goes through i18n files.
+15. Pin GitHub Actions by commit SHA; commit lockfiles.
+
+## Definition of done
+
+Tests pass · lint, type-check and security scan clean · authorisation tests for new endpoints · security and privacy review passes done · docs/ADR updated.

@@ -1,0 +1,6 @@
+{
+  "name": "@saath/api-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Generated TS client from the Core API OpenAPI spec (populated when the API exists)"
+}

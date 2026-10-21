@@ -1,0 +1,9 @@
+{
+  "name": "@saath/i18n",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Translation files: English + 10 Indian languages (DESIGN.md §1.3)",
+  "scripts": {
+    "test": "node test/validate-translations.mjs"
+  }
+}
