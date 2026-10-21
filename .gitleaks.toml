@@ -1,0 +1,47 @@
+# Gitleaks configuration for Saath.
+# Rules: default set + Saath-specific patterns. Allowlist only test/example placeholders.
+
+title = "Saath gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist: placeholder values and example files"
+paths = [
+  '''\.env\.example''',
+  '''docs/kimi-settings\.example\.json''',
+  '''scripts/security-scan\.mjs''',
+]
+regexes = [
+  '''CHANGE_ME[._A-Z]*''',
+  '''saath_dev_password''',
+]
+
+[[rules]]
+id = "saath-anthropic-api-key"
+description = "Anthropic API key (runtime LLM provider)"
+regex = '''sk-ant-api[0-9]{2}-[A-Za-z0-9_\-]{20,}'''
+keywords = ["sk-ant"]
+
+[[rules]]
+id = "saath-kimi-api-key"
+description = "Kimi coding-assistant API key (must never be in the repo)"
+regex = '''sk-kimi-[A-Za-z0-9_\-]{20,}'''
+keywords = ["sk-kimi"]
+
+[[rules]]
+id = "saath-msg91-auth-key"
+description = "MSG91 auth key with a real-looking assigned value"
+regex = '''(?i)msg91[_-]?auth[_-]?key\s*[:=]\s*["']?[A-Za-z0-9]{20,}'''
+keywords = ["msg91"]
+[rules.allowlist]
+stopwords = ["CHANGE_ME"]
+
+[[rules]]
+id = "saath-fle-master-key"
+description = "Field-level-encryption master key with a real-looking assigned value"
+regex = '''(?i)fle[_-]?master[_-]?key[_-]?b64\s*[:=]\s*["']?[A-Za-z0-9+/]{43}='''
+keywords = ["fle_master"]
+[rules.allowlist]
+stopwords = ["CHANGE_ME"]

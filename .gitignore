@@ -17,3 +17,6 @@ __pycache__/
 .terraform/
 *.tfstate*
 coverage/
+
+# local tooling (downloaded binaries)
+.tools/
