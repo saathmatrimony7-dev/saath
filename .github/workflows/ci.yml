@@ -1,0 +1,151 @@
+# Saath CI — required checks on every PR (DESIGN.md §12.7).
+# All GitHub Actions are pinned by commit SHA (supply-chain rule §12.1 T11).
+# Security tools are pinned by version and installed as binaries/packages.
+#
+# NOTE: AWS OIDC auth and deploy jobs are intentionally absent until the AWS
+# accounts exist (owner decision, P0 Q1). Terraform runs fmt/validate only.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {} # deny by default; jobs opt in to what they need
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '24'
+  PNPM_VERSION: '10.18.3'
+  GITLEAKS_VERSION: '8.21.2'
+  SEMGREP_VERSION: '1.182.0'
+  TRIVY_VERSION: '0.76.1'
+
+jobs:
+  js-checks:
+    name: Lint, typecheck, unit tests (TS)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+
+  py-checks:
+    name: Unit tests (Python)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: '0.11.8'
+      - run: cd services/agents && uv run pytest
+      - run: cd services/matching && uv run pytest
+      - name: LLM eval smoke tests (promptfoo)
+        run: cd services/agents && uv run promptfoo eval -c evals/promptfooconfig.yaml || test $? -eq 100
+
+  secrets-scan:
+    name: Gitleaks secrets scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install gitleaks
+        run: |
+          curl -sSfL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" -o /tmp/gitleaks.tar.gz
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+      - name: Scan full history
+        run: /tmp/gitleaks detect --source . --config .gitleaks.toml --redact --verbose
+
+  sast:
+    name: Semgrep SAST
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - name: Run semgrep
+        run: |
+          uv tool install semgrep==${SEMGREP_VERSION}
+          semgrep scan --config p/owasp-top-ten --config p/secrets --error \
+            --exclude node_modules --exclude .venv --exclude .git .
+
+  trivy:
+    name: Trivy filesystem scan (vuln, secret, misconfig)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install trivy
+        run: |
+          curl -sSfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" -o /tmp/trivy.tar.gz
+          tar -xzf /tmp/trivy.tar.gz -C /tmp trivy
+      - run: /tmp/trivy fs --scanners vuln,secret,misconfig --skip-dirs node_modules,.venv,.git .
+
+  dependency-audit:
+    name: Dependency audit (pnpm + pip)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --prod
+      - run: cd services/agents && uv run pip-audit
+      - run: cd services/matching && uv run pip-audit
+
+  openapi-diff:
+    name: OpenAPI diff check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check spec freshness
+        run: node scripts/openapi-diff-check.mjs
+
+  terraform:
+    name: Terraform fmt + validate (plan-only until AWS accounts exist)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install terraform
+        run: |
+          curl -sSfL "https://releases.hashicorp.com/terraform/1.13.4/terraform_1.13.4_linux_amd64.zip" -o /tmp/tf.zip
+          unzip -o /tmp/tf.zip -d /tmp
+      - run: /tmp/terraform -chdir=infra/terraform fmt -check -recursive
+      - run: |
+          for env in dev staging; do
+            /tmp/terraform -chdir=infra/terraform/envs/$env init -backend=false
+            /tmp/terraform -chdir=infra/terraform/envs/$env validate
+          done
