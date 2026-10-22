@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // NestJS DI needs decorators; NodeNext resolves dual ESM/CJS deps (e.g. embedded-postgres).
+    // No "type": "module" in package.json, so NodeNext still emits CommonJS.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "outDir": "dist",
+    "types": ["node"]
+  },
+  "include": ["src", "prisma", "scripts", "test", "vitest.config.ts"]
+}

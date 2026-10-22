@@ -20,3 +20,6 @@ coverage/
 
 # local tooling (downloaded binaries)
 .tools/
+
+# embedded dev Postgres data
+.pgdata/

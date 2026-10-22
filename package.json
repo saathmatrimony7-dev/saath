@@ -18,6 +18,15 @@
     "db:seed": "pnpm --filter @saath/api run db:seed",
     "security": "node scripts/security-scan.mjs"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "prisma",
+      "@prisma/engines",
+      "esbuild",
+      "embedded-postgres"
+    ]
+  },
   "devDependencies": {
     "eslint": "^9.37.0",
     "prettier": "^3.6.2",
