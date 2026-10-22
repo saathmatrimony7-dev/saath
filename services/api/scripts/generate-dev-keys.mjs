@@ -16,10 +16,10 @@ console.log(`JWT_PUBLIC_KEY_ES256_B64=${Buffer.from(pub).toString('base64')}`);
 console.log(`OTP_PEPPER=${randomHex()}`);
 console.log(`FLE_MASTER_KEY_B64=${randomB64()}`);
 
-function randomHex(): string {
+function randomHex() {
   return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
 }
-function randomB64(): string {
+function randomB64() {
   return Buffer.from(Array.from({ length: 32 }, () => Math.floor(Math.random() * 256))).toString(
     'base64',
   );
