@@ -5,7 +5,9 @@
   "description": "Structured JSON logger with mandatory PII redaction (AGENTS.md rule 8)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint .",

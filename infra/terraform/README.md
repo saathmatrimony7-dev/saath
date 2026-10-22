@@ -16,13 +16,13 @@ AWS accounts do not exist yet (owner decision, P0 Q1). CI runs `terraform fmt -c
 
 ## Modules
 
-| Module | Contents |
-|--------|----------|
-| `network` | VPC, public/private/isolated subnet tiers, NAT, least-privilege SGs (ALB ↔ ECS ↔ data) |
-| `kms` | CMKs per data class (`c2c3`, `c4`, `logs`), rotation on; C4 key policy restricted to the crypto-module role |
-| `database` | RDS Postgres 16 (+ pgvector via migration), isolated subnets, KMS, PITR, `rds.force_ssl=1`, master password auto-stored in Secrets Manager |
-| `cache` | ElastiCache Redis 7, TLS + AUTH token (generated, stored in Secrets Manager) |
-| `cloudtrail` | Multi-region CloudTrail → S3 Object Lock (COMPLIANCE, 365d ≥ CERT-In 180d), GuardDuty, Security Hub |
+| Module       | Contents                                                                                                                                   |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `network`    | VPC, public/private/isolated subnet tiers, NAT, least-privilege SGs (ALB ↔ ECS ↔ data)                                                     |
+| `kms`        | CMKs per data class (`c2c3`, `c4`, `logs`), rotation on; C4 key policy restricted to the crypto-module role                                |
+| `database`   | RDS Postgres 16 (+ pgvector via migration), isolated subnets, KMS, PITR, `rds.force_ssl=1`, master password auto-stored in Secrets Manager |
+| `cache`      | ElastiCache Redis 7, TLS + AUTH token (generated, stored in Secrets Manager)                                                               |
+| `cloudtrail` | Multi-region CloudTrail → S3 Object Lock (COMPLIANCE, 365d ≥ CERT-In 180d), GuardDuty, Security Hub                                        |
 
 ## Local validation (no AWS needed)
 
