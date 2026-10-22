@@ -25,6 +25,18 @@ importers:
 
   packages/config: {}
 
+  packages/crypto:
+    devDependencies:
+      '@types/node':
+        specifier: ^24.7.2
+        version: 24.19.2
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@24.19.2)(jiti@2.7.0)(tsx@4.23.15)
+
   packages/i18n: {}
 
   packages/logger:

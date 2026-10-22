@@ -1,0 +1,17 @@
+{
+  "name": "@saath/crypto",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Field-level encryption (AES-256-GCM) + HMAC lookups for C4 columns (DESIGN.md §12.4)",
+  "main": "src/index.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
