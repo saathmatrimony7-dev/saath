@@ -1,36 +1,51 @@
 /**
- * Vitest global setup: boots an ephemeral embedded Postgres (port 55434),
- * applies migrations with `prisma migrate deploy`, and tears it down after.
- * No Docker required; CI behaves identically.
+ * Vitest global setup: boots an ephemeral embedded Postgres on a FREE port,
+ * applies migrations with `prisma migrate deploy`, enables the app_login role,
+ * and tears everything down after. No Docker required; CI behaves identically.
+ *
+ * Connection URLs are written to a temp file (worker processes can't see this
+ * process's env) — read them via test/helpers/test-db.ts.
  */
 import EmbeddedPostgres from 'embedded-postgres';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createServer } from 'node:net';
 
-/** Superuser connection — used ONLY for migrations and role enablement. */
-export const TEST_DATABASE_URL = 'postgresql://saath:saath_dev_password@127.0.0.1:55434/postgres';
+const require = createRequire(__filename);
 
-/**
- * Non-superuser application connection — all RLS assertions use this.
- * (Superusers bypass RLS unconditionally; testing as superuser proves nothing.)
- */
-export const APP_DATABASE_URL =
-  'postgresql://app_login:app_login_test_password@127.0.0.1:55434/postgres';
+/** File where the ephemeral DB URLs are published for test workers. */
+export const TEST_DB_URL_FILE = join(tmpdir(), 'saath-test-db-urls.json');
+
+async function freePort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const srv = createServer();
+    srv.listen(0, '127.0.0.1', () => {
+      const port = (srv.address() as { port: number }).port;
+      srv.close(() => resolve(port));
+    });
+    srv.on('error', reject);
+  });
+}
 
 export default async function setup() {
+  const port = await freePort();
   const dir = mkdtempSync(join(tmpdir(), 'saath-pgtest-'));
   const pg = new EmbeddedPostgres({
     databaseDir: dir,
     user: 'saath',
     password: 'saath_dev_password',
-    port: 55434,
+    port,
     persistent: false,
   });
+
   try {
     await pg.initialise();
     await pg.start();
+
+    const adminUrl = `postgresql://saath:saath_dev_password@127.0.0.1:${port}/postgres`;
 
     // Invoke Prisma's JS entry directly — .bin shims (.cmd) don't exec cleanly
     // from execFileSync on Windows.
@@ -45,26 +60,29 @@ export default async function setup() {
         join(__dirname, '..', 'prisma', 'schema.prisma'),
       ],
       {
-        env: { ...process.env, DATABASE_URL: TEST_DATABASE_URL },
+        env: { ...process.env, DATABASE_URL: adminUrl },
         stdio: 'inherit',
       },
     );
+
     // Enable the app login role for this ephemeral instance (mirrors what
     // dev-db.ts / docker init / cloud provisioning do outside migrations).
-    const { PrismaClient } = await import('@prisma/client');
-    const admin = new PrismaClient({ datasources: { db: { url: TEST_DATABASE_URL } } });
+    const { PrismaClient } = require('@prisma/client');
+    const admin = new PrismaClient({ datasources: { db: { url: adminUrl } } });
     await admin.$executeRawUnsafe(`ALTER ROLE app_login LOGIN PASSWORD 'app_login_test_password'`);
     await admin.$disconnect();
+
+    const appUrl = `postgresql://app_login:app_login_test_password@127.0.0.1:${port}/postgres`;
+    writeFileSync(TEST_DB_URL_FILE, JSON.stringify({ adminUrl, appUrl }));
   } catch (err) {
     await pg.stop().catch(() => undefined);
     rmSync(dir, { recursive: true, force: true });
     throw err;
   }
 
-  process.env.DATABASE_URL = APP_DATABASE_URL;
-
   return async () => {
     await pg.stop();
     rmSync(dir, { recursive: true, force: true });
+    rmSync(TEST_DB_URL_FILE, { force: true });
   };
 }

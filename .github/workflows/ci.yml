@@ -41,6 +41,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm -r run build
+      - run: pnpm check:llm-isolation
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test

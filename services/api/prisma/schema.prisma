@@ -61,3 +61,19 @@ model OtpCode {
 
   @@map("otp_codes")
 }
+
+/// LLM Gateway audit (DESIGN.md §9). Service-context RLS only.
+model LlmCall {
+  id               String   @id @db.Uuid
+  agent            String
+  userId           String?  @map("user_id") @db.Uuid
+  model            String
+  inputTokens      Int      @map("input_tokens")
+  outputTokens     Int      @map("output_tokens")
+  costPaise        Int      @default(0) @map("cost_paise")
+  traceId          String   @map("trace_id")
+  redactionApplied Boolean  @default(true) @map("redaction_applied")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@map("llm_calls")
+}

@@ -7,11 +7,11 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { RlsPrismaClient } from '../../src/prisma/rls-prisma.client';
-import { APP_DATABASE_URL } from '../global-setup';
+import { getTestDbUrls } from '../helpers/test-db';
 
 // All assertions run as app_login (non-superuser) — the same role the API uses.
 const prisma = new RlsPrismaClient({
-  datasources: { db: { url: APP_DATABASE_URL } },
+  datasources: { db: { url: getTestDbUrls().appUrl } },
 });
 
 const userA = crypto.randomUUID();

@@ -75,6 +75,15 @@ describe('pattern-based string scrubbing', () => {
   it('scrubs Bearer headers', () => {
     expect(scrubString('Authorization: Bearer abcdef1234567890')).toContain(REDACTED);
   });
+
+  it('handles huge strings without pathological backtracking', () => {
+    const huge = 'x'.repeat(10_000_000); // no patterns; previously hung the worker
+    const start = Date.now();
+    const out = scrubString(huge);
+    expect(Date.now() - start).toBeLessThan(2000);
+    expect(out.length).toBeLessThan(huge.length); // truncated
+    expect(scrubString(huge + '+919876543210')).not.toContain('+919876543210');
+  });
 });
 
 describe('logger integration', () => {

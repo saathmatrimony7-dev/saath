@@ -17,7 +17,8 @@
     "db:migrate": "pnpm --filter @saath/api run db:migrate",
     "db:seed": "pnpm --filter @saath/api run db:seed",
     "build:packages": "pnpm --filter @saath/logger --filter @saath/crypto run build",
-    "security": "node scripts/security-scan.mjs"
+    "security": "node scripts/security-scan.mjs",
+    "check:llm-isolation": "node scripts/check-llm-isolation.mjs"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

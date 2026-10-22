@@ -10,6 +10,7 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from '../../src/app.module';
 import type { MockSmsProvider } from '../../src/modules/identity/sms/sms-provider';
 import { SMS_PROVIDER } from '../../src/modules/identity/tokens';
+import { getTestDbUrls } from './test-db';
 
 export interface TestApp {
   app: INestApplication;
@@ -31,7 +32,9 @@ export async function bootTestApp(): Promise<TestApp> {
   process.env.COOKIE_SECURE = 'false';
   process.env.OTP_PROVIDER = 'mock';
   process.env.OTP_IP_REQUESTS_PER_HOUR = '100000'; // tests share 127.0.0.1
-  // DATABASE_URL is set by test/global-setup.ts (app_login, RLS enforced).
+  process.env.INTERNAL_SERVICE_TOKEN ??= 'test-internal-token-0123456789';
+  // Point Prisma at the ephemeral test DB (app_login — RLS enforced).
+  process.env.DATABASE_URL = getTestDbUrls().appUrl;
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   const app = moduleRef.createNestApplication({ logger: false });

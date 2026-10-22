@@ -37,6 +37,19 @@ const configSchema = z.object({
   // Field-level encryption
   FLE_MASTER_KEY_B64: z.string().min(1),
 
+  // Internal service-to-service token (agents/workers → /internal/*)
+  INTERNAL_SERVICE_TOKEN: z.string().min(16),
+
+  // LLM Gateway (Claude API only; model names are config, rule 13)
+  ANTHROPIC_API_KEY: z.string().optional(),
+  LLM_GATEWAY_TRANSPORT: z.enum(['mock', 'anthropic']).default('mock'),
+  LLM_MODEL_SMALL: z.string().default('claude-haiku-5-5'),
+  LLM_MODEL_MID: z.string().default('claude-sonnet-5-5'),
+  LLM_MODEL_LARGE: z.string().default('claude-opus-5-5'),
+  LLM_DAILY_TOKEN_BUDGET_FREE: z.coerce.number().int().positive().default(20_000),
+  LLM_DAILY_TOKEN_BUDGET_PAID: z.coerce.number().int().positive().default(200_000),
+  LLM_GLOBAL_CIRCUIT_BREAKER_TOKENS: z.coerce.number().int().positive().default(50_000_000),
+
   // Cookies
   COOKIE_SECURE: z.coerce.boolean().default(false), // true in staging/prod (HTTPS)
   COOKIE_DOMAIN: z.string().optional(),

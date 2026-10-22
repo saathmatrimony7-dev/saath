@@ -54,20 +54,24 @@ const isSensitiveKey = (key: string): boolean => {
   return SENSITIVE_KEYS.has(k) || SENSITIVE_SUFFIXES.some((s) => k.endsWith(s));
 };
 
-/** Value patterns scrubbed inside any string. */
+/** Value patterns scrubbed inside any string. Bounds prevent catastrophic
+ * backtracking on huge inputs (a test with a 10 MB string caught this). */
 const SCRUB_PATTERNS: RegExp[] = [
   // JWT (header.payload.signature, all base64url)
-  /eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}/g,
+  /eyJ[A-Za-z0-9_-]{8,1024}\.[A-Za-z0-9_-]{8,4096}\.[A-Za-z0-9_-]{8,4096}/g,
   // Bearer tokens
-  /Bearer\s+[A-Za-z0-9._~+/=-]{10,}/gi,
-  // Email addresses
-  /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g,
+  /Bearer\s+[A-Za-z0-9._~+/=-]{10,2048}/gi,
+  // Email addresses (bounded local part / domain)
+  /[A-Za-z0-9._%+-]{1,64}@[A-Za-z0-9.-]{1,253}\.[A-Za-z]{2,24}/g,
   // Phone numbers: optional +, 10–15 digits allowing spaces/dashes (E.164-ish)
   /\+?[0-9][0-9\s-]{8,14}[0-9]/g,
 ];
 
+/** Strings longer than this are truncated before scrubbing (log safety + perf). */
+const MAX_SCRUB_LEN = 100_000;
+
 export function scrubString(value: string): string {
-  let out = value;
+  let out = value.length > MAX_SCRUB_LEN ? `${value.slice(0, MAX_SCRUB_LEN)}…[truncated]` : value;
   for (const re of SCRUB_PATTERNS) {
     out = out.replace(re, REDACTED);
   }
