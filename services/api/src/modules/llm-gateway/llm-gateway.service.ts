@@ -88,7 +88,7 @@ export class LlmGatewayService {
         messages,
         maxTokens: req.maxTokens ?? 1024,
       });
-    } catch (err) {
+    } catch {
       logger.error({ agent: req.agent, model }, 'llm call failed');
       throw new ServiceUnavailableException('llm unavailable');
     }

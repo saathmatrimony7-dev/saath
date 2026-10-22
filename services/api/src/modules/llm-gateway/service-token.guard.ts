@@ -3,8 +3,8 @@
  * use scoped tokens; mTLS terminates at the load balancer in deployed envs).
  * Constant-time comparison; token comes from config/Secrets Manager.
  */
-import { CanActivate, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { ExecutionContext } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { timingSafeEqual } from 'node:crypto';
 import type { Request } from 'express';
 import type { AppConfig } from '../../config';
