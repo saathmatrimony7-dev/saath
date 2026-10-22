@@ -16,6 +16,7 @@
     "format": "prettier --check .",
     "db:migrate": "pnpm --filter @saath/api run db:migrate",
     "db:seed": "pnpm --filter @saath/api run db:seed",
+    "build:packages": "pnpm --filter @saath/logger --filter @saath/crypto run build",
     "security": "node scripts/security-scan.mjs"
   },
   "pnpm": {
