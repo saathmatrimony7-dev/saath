@@ -63,10 +63,12 @@ describe('taxonomy endpoints', () => {
     expect(bKeys).toContain('diet');
   });
 
-  it('requires authentication', async () => {
+  it('is public read: anonymous gets 200 (no auth needed for reference data)', async () => {
     const anon = new TestClient(t.baseUrl);
     const res = await anon.get('/v1/taxonomy/religions');
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(200);
+    const ids = (res.json as unknown as { id: string }[]).map((r) => r.id);
+    expect(ids).toContain('hindu');
   });
 });
 
