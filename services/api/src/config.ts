@@ -50,6 +50,15 @@ const configSchema = z.object({
   LLM_DAILY_TOKEN_BUDGET_PAID: z.coerce.number().int().positive().default(200_000),
   LLM_GLOBAL_CIRCUIT_BREAKER_TOKENS: z.coerce.number().int().positive().default(50_000_000),
 
+  // Photos + object storage (P1-04). Mock provider is disk-backed and
+  // HMAC-signed; S3 wiring lands with cloud infra (P2).
+  STORAGE_PROVIDER: z.enum(['mock', 's3']).default('mock'),
+  STORAGE_SIGNING_SECRET: z.string().min(16).default('dev-storage-signing-secret'),
+  STORAGE_DIR: z.string().default('.data/storage'),
+  PHOTOS_MAX_COUNT: z.coerce.number().int().positive().default(6),
+  PHOTOS_MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(10_485_760), // 10 MB
+  PHOTOS_URL_TTL_SEC: z.coerce.number().int().positive().default(900),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
@@ -76,6 +85,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     const violations: string[] = [];
     if (cfg.OTP_PROVIDER === 'mock') violations.push('OTP_PROVIDER=mock');
     if (cfg.LLM_GATEWAY_TRANSPORT === 'mock') violations.push('LLM_GATEWAY_TRANSPORT=mock');
+    if (cfg.STORAGE_PROVIDER === 'mock') violations.push('STORAGE_PROVIDER=mock');
     if (!cfg.COOKIE_SECURE) violations.push('COOKIE_SECURE=false');
     if (violations.length > 0) {
       throw new Error(`Refusing to boot in production with: ${violations.join(', ')}`);

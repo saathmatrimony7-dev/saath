@@ -12,6 +12,7 @@ const baseEnv = {
   INTERNAL_SERVICE_TOKEN: 'internal-token-0123456789',
   OTP_PROVIDER: 'msg91',
   LLM_GATEWAY_TRANSPORT: 'anthropic',
+  STORAGE_PROVIDER: 's3',
   COOKIE_SECURE: 'true',
 } as NodeJS.ProcessEnv;
 
@@ -32,5 +33,11 @@ describe('production config guardrails', () => {
 
   it('refuses COOKIE_SECURE=false in production', () => {
     expect(() => loadConfig({ ...baseEnv, COOKIE_SECURE: 'false' })).toThrow(/COOKIE_SECURE=false/);
+  });
+
+  it('refuses STORAGE_PROVIDER=mock in production', () => {
+    expect(() => loadConfig({ ...baseEnv, STORAGE_PROVIDER: 'mock' })).toThrow(
+      /STORAGE_PROVIDER=mock/,
+    );
   });
 });

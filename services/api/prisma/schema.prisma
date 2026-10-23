@@ -35,6 +35,7 @@ model User {
   dealbreakers Dealbreaker[]
   softPreferences SoftPreference[]
   disclosurePolicy DisclosurePolicy?
+  photos Photo[]
 
   @@map("users")
 }
@@ -149,6 +150,25 @@ model SoftPreference {
 
   @@index([userId, topic])
   @@map("soft_preferences")
+}
+
+/// Photo metadata + moderation ledger (P1-04). Files only via signed URLs.
+model Photo {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @map("user_id") @db.Uuid
+  storageKey         String   @unique @map("storage_key")
+  contentType        String   @map("content_type")
+  byteSize           Int      @default(0) @map("byte_size")
+  phash              String?
+  moderationStatus   String   @default("pending") @map("moderation_status")
+  isPrimary          Boolean  @default(false) @map("is_primary")
+  blurForNonMatches  Boolean  @default(true) @map("blur_for_non_matches")
+  sortOrder          Int      @default(0) @map("sort_order") @db.SmallInt
+  createdAt          DateTime @default(now()) @map("created_at")
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("photos")
 }
 
 model DisclosurePolicy {

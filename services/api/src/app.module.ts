@@ -7,6 +7,7 @@ import { LlmGatewayModule } from './modules/llm-gateway/llm-gateway.module';
 import { TaxonomyModule } from './modules/taxonomy/taxonomy.module';
 import { ConsentModule } from './modules/consent/consent.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
+import { PhotosModule } from './modules/photos/photos.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
     TaxonomyModule,
     ConsentModule,
     ProfilesModule,
+    PhotosModule,
   ],
   controllers: [HealthController, MeController],
 })

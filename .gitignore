@@ -26,3 +26,5 @@ coverage/
 
 # SWC native binding cache
 .swc-cache/
+
+.data/
