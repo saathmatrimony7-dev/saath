@@ -31,6 +31,14 @@ The files in `.claude/agents/` describe specialist roles: architect, backend-eng
 - Agents & matching: Python 3.12, FastAPI (internal only), Anthropic SDK, Pydantic v2
 - Data: Postgres 16 + pgvector (row-level security on every user-data table), Redis, S3, SQS/EventBridge
 - Infra: AWS ap-south-1 (Mumbai), Terraform, ECS Fargate, GitHub Actions with OIDC
+- Shared TS packages: `@saath/logger` (redaction logging — never use console/bare pino), `@saath/crypto` (field-level encryption + HMAC for C4 columns)
+
+## Coding conventions (added in P0; see docs/adr/)
+
+- **Explicit `@Inject(TOKEN)` on every NestJS constructor dependency** — esbuild/tsx don't emit decorator metadata (ADR-0004). String tokens live in the module's `tokens.ts`.
+- The API connects to Postgres as the non-superuser `app_login` role; superusers bypass RLS and must only run migrations (ADR-0002).
+- RLS policies are hand-written SQL appended to Prisma migrations; every user-data table gets ENABLE+FORCE RLS plus owner/service policies (ADR-0001).
+- Redaction regexes must be length-bounded (a 10 MB input caused catastrophic backtracking; regression test in packages/logger).
 
 ## Commands (create in P0 and keep working)
 
@@ -38,6 +46,9 @@ The files in `.claude/agents/` describe specialist roles: architect, backend-eng
 - `pnpm db:migrate` / `pnpm db:seed` (synthetic data only)
 - `cd services/agents && uv run pytest`
 - `make security` → semgrep + gitleaks + trivy + dependency audit
+- `node scripts/p0-exit-check.mjs` → P0 exit-criteria evidence runner
+- `pnpm check:llm-isolation` → proves the Anthropic SDK is confined to the LLM Gateway
+- Local DB without Docker: `cd services/api && pnpm db:dev` (embedded Postgres 16); with Docker: `make db-up`
 
 ## Non-negotiable rules
 
