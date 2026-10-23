@@ -104,6 +104,9 @@ export class TestClient {
   put(path: string, body?: unknown, headers?: Record<string, string>) {
     return this.req('PUT', path, body, headers);
   }
+  patch(path: string, body?: unknown, headers?: Record<string, string>) {
+    return this.req('PATCH', path, body, headers);
+  }
 
   /** CSRF double-submit header from the cookie jar. */
   csrfHeaders(): Record<string, string> {

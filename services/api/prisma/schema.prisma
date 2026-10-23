@@ -29,6 +29,12 @@ model User {
 
   sessions Session[]
   consents Consent[]
+  profile Profile?
+  profileAttributes ProfileAttribute[]
+  preference Preference?
+  dealbreakers Dealbreaker[]
+  softPreferences SoftPreference[]
+  disclosurePolicy DisclosurePolicy?
 
   @@map("users")
 }
@@ -47,6 +53,112 @@ model Consent {
 
   @@index([userId, purpose, createdAt(sort: Desc)])
   @@map("consents")
+}
+
+/// One row per user (P1-03). Reference-data columns FK into the taxonomy —
+/// the user SELF-selects; nothing is inferred (rule 10).
+model Profile {
+  userId             String   @id @map("user_id") @db.Uuid
+  displayName        String?  @map("display_name")
+  aboutNormalised    String?  @map("about_normalised")
+  heightCm           Int?     @map("height_cm") @db.SmallInt
+  maritalStatus      String?  @map("marital_status")
+  hasChildren        Boolean  @default(false) @map("has_children")
+  diet               String?
+  educationLevel     String?  @map("education_level")
+  profession         String?
+  incomeBand         String?  @map("income_band")
+  cityId             String?  @map("city_id")
+  willingToRelocate  Boolean? @map("willing_to_relocate")
+  religionId         String?  @map("religion_id")
+  communityId        String?  @map("community_id")
+  subCommunityId     String?  @map("sub_community_id")
+  motherTongue       String?  @map("mother_tongue")
+  visibility         String   @default("members")
+  verificationTier   Int      @default(0) @map("verification_tier") @db.SmallInt
+  profileVersion     Int      @default(1) @map("profile_version")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city               TaxonomyCity?          @relation(fields: [cityId], references: [id])
+  religion           TaxonomyReligion?      @relation(fields: [religionId], references: [id])
+  community          TaxonomyCommunity?     @relation(fields: [communityId], references: [id])
+  subCommunity       TaxonomySubCommunity?  @relation(fields: [subCommunityId], references: [id])
+
+  @@map("profiles")
+}
+
+/// Community-specific attribute values (gotra, manglik…); validated against
+/// AttributeDefinition in the service layer. Per-row visibility.
+model ProfileAttribute {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  attributeKey  String   @map("attribute_key")
+  value         Json
+  visibility    String   @default("matches_only")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  definition    AttributeDefinition @relation(fields: [attributeKey], references: [key])
+
+  @@index([userId, attributeKey])
+  @@map("profile_attributes")
+}
+
+model Preference {
+  userId                String   @id @map("user_id") @db.Uuid
+  ageMin                Int?     @map("age_min") @db.SmallInt
+  ageMax                Int?     @map("age_max") @db.SmallInt
+  heightMin             Int?     @map("height_min") @db.SmallInt
+  cities                String[] @default([])
+  relocateOk            Boolean? @map("relocate_ok")
+  communityFilter       Json?    @map("community_filter")
+  openToAllCommunities  Boolean  @default(true) @map("open_to_all_communities")
+  dietOk                String[] @default([]) @map("diet_ok")
+  maritalOk             String[] @default([]) @map("marital_ok")
+  version               Int      @default(1)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("preferences")
+}
+
+model Dealbreaker {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  field     String
+  rule      Json
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("dealbreakers")
+}
+
+model SoftPreference {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  topic            String
+  stanceNormalised String   @map("stance_normalised")
+  weight           Int      @default(50) @db.SmallInt
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, topic])
+  @@map("soft_preferences")
+}
+
+model DisclosurePolicy {
+  userId     String   @id @map("user_id") @db.Uuid
+  shareLevel String   @default("standard") @map("share_level")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("disclosure_policies")
 }
 
 model Session {
@@ -105,6 +217,7 @@ model TaxonomyReligion {
   labelI18n   Json                @map("label_i18n")
   sortOrder   Int                 @default(0) @map("sort_order")
   communities TaxonomyCommunity[]
+  profiles Profile[]
 
   @@map("taxonomy_religion")
 }
@@ -116,6 +229,7 @@ model TaxonomyCommunity {
   labelI18n      Json                   @map("label_i18n")
   sortOrder      Int                    @default(0) @map("sort_order")
   subCommunities TaxonomySubCommunity[]
+  profiles Profile[]
 
   @@map("taxonomy_community")
 }
@@ -126,6 +240,7 @@ model TaxonomySubCommunity {
   community   TaxonomyCommunity @relation(fields: [communityId], references: [id])
   labelI18n   Json              @map("label_i18n")
   sortOrder   Int               @default(0) @map("sort_order")
+  profiles Profile[]
 
   @@map("taxonomy_sub_community")
 }
@@ -135,6 +250,7 @@ model TaxonomyCity {
   labelI18n Json   @map("label_i18n")
   state     String // state slug, e.g. "maharashtra"
   country   String @default("IN")
+  profiles Profile[]
 
   @@map("taxonomy_city")
 }
@@ -148,6 +264,7 @@ model AttributeDefinition {
   options        Json? // [{ "value": "...", "label_i18n": {...} }] for select types
   sensitivity    String  @default("C3")
   labelI18n      Json    @map("label_i18n")
+  profileAttributes ProfileAttribute[]
 
   @@map("attribute_definitions")
 }
