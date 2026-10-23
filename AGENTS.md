@@ -39,6 +39,7 @@ The files in `.claude/agents/` describe specialist roles: architect, backend-eng
 - The API connects to Postgres as the non-superuser `app_login` role; superusers bypass RLS and must only run migrations (ADR-0002).
 - RLS policies are hand-written SQL appended to Prisma migrations; every user-data table gets ENABLE+FORCE RLS plus owner/service policies (ADR-0001).
 - Redaction regexes must be length-bounded (a 10 MB input caused catastrophic backtracking; regression test in packages/logger).
+- Embedded Postgres on Windows inits with the ANSI codepage (WIN1252 server encoding) — non-ASCII data (Hindi/Tamil) then fails with SQLSTATE 22P05. Fixed by `initdbFlags: ['--encoding=UTF8', '--locale=C']` in dev-db.ts and test/global-setup.ts; legacy data dirs are healed by `scripts/enable-app-login.ts` (pg_database encoding UPDATE).
 
 ## Commands (create in P0 and keep working)
 

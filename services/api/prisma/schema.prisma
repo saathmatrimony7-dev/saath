@@ -77,3 +77,60 @@ model LlmCall {
 
   @@map("llm_calls")
 }
+
+// --- P1-01: taxonomy & attribute definitions (DESIGN.md §1.3, §9) -----------
+// Reference data: world-readable through the API, writes are service-only
+// (RLS: SELECT for all, no write policy for app_user).
+// label_i18n shape: { "en": "...", "hi": "...", "ta": "..." }
+
+model TaxonomyReligion {
+  id          String              @id // slug, e.g. "hindu"
+  labelI18n   Json                @map("label_i18n")
+  sortOrder   Int                 @default(0) @map("sort_order")
+  communities TaxonomyCommunity[]
+
+  @@map("taxonomy_religion")
+}
+
+model TaxonomyCommunity {
+  id             String                 @id // slug, e.g. "hindu-brahmin"
+  religionId     String                 @map("religion_id")
+  religion       TaxonomyReligion       @relation(fields: [religionId], references: [id])
+  labelI18n      Json                   @map("label_i18n")
+  sortOrder      Int                    @default(0) @map("sort_order")
+  subCommunities TaxonomySubCommunity[]
+
+  @@map("taxonomy_community")
+}
+
+model TaxonomySubCommunity {
+  id          String            @id // slug
+  communityId String            @map("community_id")
+  community   TaxonomyCommunity @relation(fields: [communityId], references: [id])
+  labelI18n   Json              @map("label_i18n")
+  sortOrder   Int               @default(0) @map("sort_order")
+
+  @@map("taxonomy_sub_community")
+}
+
+model TaxonomyCity {
+  id        String @id // slug, e.g. "mumbai"
+  labelI18n Json   @map("label_i18n")
+  state     String // state slug, e.g. "maharashtra"
+  country   String @default("IN")
+
+  @@map("taxonomy_city")
+}
+
+/// Community-specific optional attributes (gotra, manglik_status, sect, diet…).
+/// sensitivity is a data class (C1–C3) driving handling rules (§10.1).
+model AttributeDefinition {
+  key            String  @id // e.g. "gotra"
+  communityScope String? @map("community_scope") // taxonomy_community.id or null = applies to all
+  type           String // "text" | "single_select" | "multi_select" | "boolean"
+  options        Json? // [{ "value": "...", "label_i18n": {...} }] for select types
+  sensitivity    String  @default("C3")
+  labelI18n      Json    @map("label_i18n")
+
+  @@map("attribute_definitions")
+}

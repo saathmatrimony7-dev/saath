@@ -39,6 +39,9 @@ export default async function setup() {
     password: 'saath_dev_password',
     port,
     persistent: false,
+    // Windows hosts would otherwise initdb with the ANSI codepage (WIN1252),
+    // which cannot store non-ASCII data (Hindi/Tamil labels). Force UTF8.
+    initdbFlags: ['--encoding=UTF8', '--locale=C'],
   });
 
   try {
@@ -70,6 +73,7 @@ export default async function setup() {
     const { PrismaClient } = require('@prisma/client');
     const admin = new PrismaClient({ datasources: { db: { url: adminUrl } } });
     await admin.$executeRawUnsafe(`ALTER ROLE app_login LOGIN PASSWORD 'app_login_test_password'`);
+
     await admin.$disconnect();
 
     const appUrl = `postgresql://app_login:app_login_test_password@127.0.0.1:${port}/postgres`;

@@ -108,3 +108,18 @@ export class TestClient {
     return csrf ? { 'x-csrf-token': csrf } : {};
   }
 }
+
+/** Signs up a fresh user through the full OTP flow; returns authed client + id. */
+export async function signupTestUser(
+  t: TestApp,
+  phone: string,
+): Promise<{ client: TestClient; userId: string }> {
+  const client = new TestClient(t.baseUrl);
+  const req = await client.post('/v1/auth/otp/request', { phone });
+  if (req.status !== 202) throw new Error(`otp request failed: ${req.status}`);
+  const code = t.mockSms.outbox.at(-1)?.code;
+  if (!code) throw new Error('mock outbox empty');
+  const res = await client.post('/v1/auth/otp/verify', { phone, code });
+  if (res.status !== 200) throw new Error(`otp verify failed: ${res.status}`);
+  return { client, userId: res.json?.userId as string };
+}

@@ -15,6 +15,9 @@ const pg = new EmbeddedPostgres({
   password: 'saath_dev_password',
   port,
   persistent: true,
+  // Windows hosts would otherwise initdb with the ANSI codepage (WIN1252),
+  // which cannot store non-ASCII data (Hindi/Tamil labels). Force UTF8.
+  initdbFlags: ['--encoding=UTF8', '--locale=C'],
 });
 
 async function main(): Promise<void> {
@@ -32,6 +35,12 @@ async function main(): Promise<void> {
   await admin
     .$executeRawUnsafe(`ALTER ROLE app_login LOGIN PASSWORD 'app_login_dev_password'`)
     .catch(() => undefined); // role exists only after first migrate — rerun dev-db after
+  // Heal pre-existing data dirs created before the UTF8 initdb flag (initdb
+  // only runs on first initialise). Safe while DB content is still ASCII.
+  await admin.$executeRawUnsafe(
+    `UPDATE pg_database SET encoding = pg_char_to_encoding('UTF8') WHERE datname = 'postgres' AND encoding <> pg_char_to_encoding('UTF8')`,
+  );
+  await admin.$executeRawUnsafe(`ALTER DATABASE postgres SET client_encoding TO 'UTF8'`);
   await admin.$disconnect();
 
   console.log(`Postgres ready on port ${port}`);
