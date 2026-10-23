@@ -59,6 +59,8 @@ export class OtpService {
     // Identity-infrastructure table: service-scoped GUC, not a user context.
     await this.prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT set_config('app.service', 'identity', true)`;
+      // Hygiene: clear expired codes so old hashes don't linger (privacy: minimisation).
+      await tx.otpCode.deleteMany({ where: { expiresAt: { lt: new Date() } } });
       await tx.otpCode.upsert({
         where: { phoneHash },
         create: { phoneHash, codeHash, attempts: 0, expiresAt },

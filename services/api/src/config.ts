@@ -51,7 +51,7 @@ const configSchema = z.object({
   LLM_GLOBAL_CIRCUIT_BREAKER_TOKENS: z.coerce.number().int().positive().default(50_000_000),
 
   // Cookies
-  COOKIE_SECURE: z.coerce.boolean().default(false), // true in staging/prod (HTTPS)
+  COOKIE_SECURE: z.stringbool().default(false), // must be true in staging/prod (HTTPS)
   COOKIE_DOMAIN: z.string().optional(),
 });
 
@@ -64,5 +64,18 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     const keys = parsed.error.issues.map((i) => i.path.join('.'));
     throw new Error(`Invalid configuration keys: ${keys.join(', ')}`);
   }
-  return parsed.data;
+  const cfg = parsed.data;
+
+  // Production safety rails (security review P0-12): mocks and insecure
+  // cookies must never reach prod by misconfiguration.
+  if (cfg.NODE_ENV === 'production') {
+    const violations: string[] = [];
+    if (cfg.OTP_PROVIDER === 'mock') violations.push('OTP_PROVIDER=mock');
+    if (cfg.LLM_GATEWAY_TRANSPORT === 'mock') violations.push('LLM_GATEWAY_TRANSPORT=mock');
+    if (!cfg.COOKIE_SECURE) violations.push('COOKIE_SECURE=false');
+    if (violations.length > 0) {
+      throw new Error(`Refusing to boot in production with: ${violations.join(', ')}`);
+    }
+  }
+  return cfg;
 }
