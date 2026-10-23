@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const llmToolSchema = z
+  .object({
+    name: z.string().min(1).max(64),
+    description: z.string().max(1000).optional(),
+    input_schema: z.record(z.string(), z.unknown()).optional(),
+  })
+  .strict();
+
 export const llmCompleteSchema = z
   .object({
     agent: z.string().min(1).max(64),
@@ -19,7 +27,11 @@ export const llmCompleteSchema = z
       .min(1)
       .max(100),
     maxTokens: z.number().int().positive().max(8192).optional(),
+    tools: z.array(llmToolSchema).max(20).optional(),
   })
   .strict();
 
 export type LlmCompleteDto = z.infer<typeof llmCompleteSchema>;
+
+/** Stream endpoint accepts the same shape (tools included for tool-use). */
+export const llmStreamSchema = llmCompleteSchema;

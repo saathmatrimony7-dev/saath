@@ -5,11 +5,25 @@
  */
 import Anthropic from '@anthropic-ai/sdk';
 
+export interface LlmToolSpec {
+  name: string;
+  description?: string;
+  input_schema?: Record<string, unknown>;
+}
+
 export interface LlmRequest {
   model: string;
   system?: string;
   messages: { role: 'user' | 'assistant'; content: string }[];
   maxTokens: number;
+  /** Anthropic tool-use passthrough (P1-05): carried to the API verbatim. */
+  tools?: LlmToolSpec[];
+}
+
+/** Streaming variant: transports yield text deltas in order. */
+export interface LlmStreamChunk {
+  type: 'delta' | 'done';
+  delta?: string;
 }
 
 export interface LlmResponse {
@@ -21,6 +35,7 @@ export interface LlmResponse {
 
 export interface LlmTransport {
   complete(req: LlmRequest): Promise<LlmResponse>;
+  stream(req: LlmRequest): AsyncIterable<string>;
 }
 
 /** Real Claude API transport (Anthropic). Used only when explicitly configured. */
@@ -37,6 +52,7 @@ export class AnthropicTransport implements LlmTransport {
       max_tokens: req.maxTokens,
       ...(req.system ? { system: req.system } : {}),
       messages: req.messages,
+      ...(req.tools && req.tools.length > 0 ? { tools: req.tools as never } : {}),
     });
     const text = res.content
       .filter((b) => b.type === 'text')
@@ -49,16 +65,40 @@ export class AnthropicTransport implements LlmTransport {
       outputTokens: res.usage.output_tokens,
     };
   }
+
+  async *stream(req: LlmRequest): AsyncIterable<string> {
+    const stream = this.client.messages.stream({
+      model: req.model,
+      max_tokens: req.maxTokens,
+      ...(req.system ? { system: req.system } : {}),
+      messages: req.messages,
+      ...(req.tools && req.tools.length > 0 ? { tools: req.tools as never } : {}),
+    });
+    for await (const event of stream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        yield event.delta.text;
+      }
+    }
+  }
 }
 
 /** Deterministic mock for dev/CI — no network, no key, no cost. */
 export class MockTransport implements LlmTransport {
   readonly calls: LlmRequest[] = [];
+  readonly streamCalls: LlmRequest[] = [];
 
   async complete(req: LlmRequest): Promise<LlmResponse> {
     this.calls.push(req);
     const inputTokens = req.messages.reduce((n, m) => n + Math.ceil(m.content.length / 4), 0);
     const text = `[mock:${req.model}] ok`;
     return { text, model: req.model, inputTokens, outputTokens: Math.ceil(text.length / 4) };
+  }
+
+  async *stream(req: LlmRequest): AsyncIterable<string> {
+    this.streamCalls.push(req);
+    const full = `[mock:${req.model}] ok`;
+    for (const word of full.split(' ')) {
+      yield word + ' ';
+    }
   }
 }

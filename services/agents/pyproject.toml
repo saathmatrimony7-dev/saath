@@ -1,12 +1,12 @@
 [project]
 name = "saath-agents"
 version = "0.0.0"
-description = "Saath AI agents (A1-A11), LLM Gateway client, schemas, evals (DESIGN.md §6-7)"
+description = "Saath AI agents (A1-A11), LLM Gateway client, schemas, evals (DESIGN.md Â§6-7)"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
     "httpx>=0.28.1",
-    "itsdangerous>=2.2.0",
+
     "pydantic>=2.9",
     "uvicorn>=0.32",
 ]

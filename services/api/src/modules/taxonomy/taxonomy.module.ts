@@ -7,5 +7,6 @@ import { TaxonomyService } from './taxonomy.service';
   imports: [PrismaModule],
   controllers: [TaxonomyController],
   providers: [TaxonomyService],
+  exports: [TaxonomyService],
 })
 export class TaxonomyModule {}

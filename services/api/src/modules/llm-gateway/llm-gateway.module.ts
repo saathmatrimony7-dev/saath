@@ -6,11 +6,15 @@ import { LlmGatewayService } from './llm-gateway.service';
 import { MemoryBudgetStore } from './budget';
 import { AnthropicTransport, MockTransport, type LlmTransport } from './transports';
 import { ServiceTokenGuard } from './service-token.guard';
+import { AgentTokenGuard } from './agent-token.guard';
+import { ToolsController } from './tools.controller';
 import { IdentityModule } from '../identity/identity.module';
+import { ProfilesModule } from '../profiles/profiles.module';
+import { TaxonomyModule } from '../taxonomy/taxonomy.module';
 
 @Module({
-  imports: [IdentityModule], // provides APP_CONFIG
-  controllers: [LlmGatewayController],
+  imports: [IdentityModule, ProfilesModule, TaxonomyModule],
+  controllers: [LlmGatewayController, ToolsController],
   providers: [
     {
       provide: 'LLM_TRANSPORT',
@@ -23,6 +27,7 @@ import { IdentityModule } from '../identity/identity.module';
     { provide: 'LLM_BUDGET_STORE', useFactory: () => new MemoryBudgetStore() },
     LlmGatewayService,
     ServiceTokenGuard,
+    AgentTokenGuard,
   ],
   exports: [LlmGatewayService],
 })

@@ -29,6 +29,7 @@ export interface GatewayRequest {
   system?: string;
   messages: { role: 'user' | 'assistant'; content: string }[];
   maxTokens?: number;
+  tools?: { name: string; description?: string; input_schema?: Record<string, unknown> }[];
 }
 
 export interface GatewayResponse extends LlmResponse {
@@ -87,6 +88,7 @@ export class LlmGatewayService {
         ...(system !== undefined ? { system } : {}),
         messages,
         maxTokens: req.maxTokens ?? 1024,
+        tools: req.tools,
       });
     } catch {
       logger.error({ agent: req.agent, model }, 'llm call failed');
@@ -118,5 +120,75 @@ export class LlmGatewayService {
     logger.info({ agent: req.agent, model: res.model, total, traceId }, 'llm call completed');
 
     return { ...res, traceId };
+  }
+
+  /**
+   * SSE streaming variant (P1-05). Same redaction + budgets + audit as
+   * complete(); deltas are yielded to the caller as they arrive. Usage is
+   * accounted after the stream finishes (token counts from actual text).
+   */
+  async *stream(
+    req: GatewayRequest,
+  ): AsyncGenerator<{ type: 'delta'; delta: string } | { type: 'done'; traceId: string; text: string }> {
+    const model = this.modelFor(req.tier);
+    const system = req.system ? scrubString(req.system) : undefined;
+    const messages = req.messages.map((m) => ({ ...m, content: scrubString(m.content) }));
+
+    const estimated = messages.reduce((n, m) => n + Math.ceil(m.content.length / 4), 0);
+    if (req.userId) {
+      const cap =
+        req.plan === 'paid'
+          ? this.config.LLM_DAILY_TOKEN_BUDGET_PAID
+          : this.config.LLM_DAILY_TOKEN_BUDGET_FREE;
+      const used = await this.budgets.get(`llm:user:${req.userId}`);
+      if (used + estimated > cap) throw new BudgetExceededError('user');
+    }
+    const globalUsed = await this.budgets.get('llm:global');
+    if (globalUsed + estimated > this.config.LLM_GLOBAL_CIRCUIT_BREAKER_TOKENS) {
+      throw new BudgetExceededError('global');
+    }
+
+    let text = '';
+    try {
+      for await (const delta of this.transport.stream({
+        model,
+        ...(system !== undefined ? { system } : {}),
+        messages,
+        maxTokens: req.maxTokens ?? 1024,
+        tools: req.tools,
+      })) {
+        text += delta;
+        yield { type: 'delta', delta };
+      }
+    } catch {
+      logger.error({ agent: req.agent, model }, 'llm stream failed');
+      throw new ServiceUnavailableException('llm unavailable');
+    }
+
+    const inputTokens = estimated;
+    const outputTokens = Math.ceil(text.length / 4);
+    const total = inputTokens + outputTokens;
+    if (req.userId) await this.budgets.add(`llm:user:${req.userId}`, total, DAY_SEC);
+    await this.budgets.add('llm:global', total, DAY_SEC);
+
+    const traceId = randomUUID();
+    await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'llm-gateway', true)`;
+      await tx.llmCall.create({
+        data: {
+          id: traceId,
+          agent: req.agent,
+          userId: req.userId ?? null,
+          model,
+          inputTokens,
+          outputTokens,
+          costPaise: 0,
+          traceId,
+          redactionApplied: true,
+        },
+      });
+    });
+    logger.info({ agent: req.agent, model, total, traceId }, 'llm stream completed');
+    yield { type: 'done', traceId, text };
   }
 }

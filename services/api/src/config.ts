@@ -40,6 +40,10 @@ const configSchema = z.object({
   // Internal service-to-service token (agents/workers → /internal/*)
   INTERNAL_SERVICE_TOKEN: z.string().min(16),
 
+  // HMAC secret for scoped agent tokens (x-agent-token on /internal/tools/*).
+  // Must match services/agents' agent_token_secret. Dev default only.
+  AGENT_TOKEN_HMAC_SECRET: z.string().min(16).default('dev-agent-token-hmac-secret'),
+
   // LLM Gateway (Claude API only; model names are config, rule 13)
   ANTHROPIC_API_KEY: z.string().optional(),
   LLM_GATEWAY_TRANSPORT: z.enum(['mock', 'anthropic']).default('mock'),

@@ -1,22 +1,27 @@
-"""Scoped agent tokens (DESIGN.md §6.0, §12.6).
+"""Scoped agent tokens (DESIGN.md A6.0, A12.6).
 
 Every agent invocation carries a short-lived token binding:
-  agent              — which agent (A1…A11)
-  acting_for_user_id — the user the agent acts for (empty for neutral agents)
-  tools              — allow-listed internal tool names
-  exp                — expiry (max 15 minutes)
+  agent              -> which agent (A1..A11)
+  acting_for_user_id -> the user the agent acts for (empty for neutral agents)
+  tools              -> allow-listed internal tool names
+  exp                -> expiry (max 15 minutes)
 
-HMAC-SHA256 signed (itsdangerous). The signing secret lives in config /
-Secrets Manager. An agent never gets DB credentials — these tokens are the
-ONLY way it can call the Core API's /internal/tools/* endpoints.
+Format (shared with the Core API's TS verifier — keep in sync):
+  token = b64url(json_claims) + "." + b64url(hmac_sha256(secret, b64url_json))
+
+HMAC-SHA256 signed; the signing secret lives in config / Secrets Manager.
+An agent never gets DB credentials — these tokens are the ONLY way it can
+call the Core API's /internal/tools/* endpoints.
 """
 
 from __future__ import annotations
 
+import base64
+import hashlib
+import hmac
 import time
 from typing import Any
 
-import itsdangerous
 from pydantic import BaseModel, Field
 
 MAX_TTL_SECONDS = 15 * 60
@@ -31,6 +36,15 @@ class ScopedTokenClaims(BaseModel):
 
 class ScopedTokenError(Exception):
     """Signature invalid, expired, or malformed."""
+
+
+def _b64url(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+
+def _b64url_decode(data: str) -> bytes:
+    pad = "=" * (-len(data) % 4)
+    return base64.urlsafe_b64decode(data + pad)
 
 
 def mint_token(
@@ -49,17 +63,22 @@ def mint_token(
         tools=tools or [],
         exp=int(time.time()) + ttl_seconds,
     )
-    signer = itsdangerous.TimestampSigner(secret.encode())
-    payload = claims.model_dump_json().encode()
-    return signer.sign(payload).decode()
+    payload = _b64url(claims.model_dump_json().encode())
+    sig = _b64url(hmac.new(secret.encode(), payload.encode(), hashlib.sha256).digest())
+    return f"{payload}.{sig}"
 
 
 def verify_token(secret: str, token: str) -> ScopedTokenClaims:
-    signer = itsdangerous.TimestampSigner(secret.encode())
     try:
-        payload = signer.unsign(token, max_age=MAX_TTL_SECONDS)
-        claims = ScopedTokenClaims.model_validate_json(payload)
-    except (itsdangerous.BadSignature, itsdangerous.SignatureExpired, ValueError) as exc:
+        payload, sig = token.split(".", 1)
+    except ValueError as exc:
+        raise ScopedTokenError("invalid or expired agent token") from exc
+    expected = _b64url(hmac.new(secret.encode(), payload.encode(), hashlib.sha256).digest())
+    if not hmac.compare_digest(expected, sig):
+        raise ScopedTokenError("invalid or expired agent token")
+    try:
+        claims = ScopedTokenClaims.model_validate_json(_b64url_decode(payload))
+    except ValueError as exc:
         raise ScopedTokenError("invalid or expired agent token") from exc
     if claims.exp < int(time.time()):
         raise ScopedTokenError("invalid or expired agent token")
