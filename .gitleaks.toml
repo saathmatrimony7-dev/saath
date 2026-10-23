@@ -12,6 +12,7 @@ paths = [
   '''\.env\.example''',
   '''docs/kimi-settings\.example\.json''',
   '''scripts/security-scan\.mjs''',
+  '''scripts/p0-exit-check\.mjs''',  # contains the intentional fake canary string
 ]
 regexes = [
   '''CHANGE_ME[._A-Z]*''',
