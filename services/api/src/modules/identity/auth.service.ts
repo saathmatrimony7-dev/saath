@@ -11,6 +11,7 @@ import type { AppConfig } from '../../config';
 import type { PrismaService } from '../../prisma/prisma.service';
 import { TokenService } from './token.service';
 import type { OtpService } from './otp.service';
+import { SIGNUP_PURPOSES } from '../consent/consent.consts';
 
 const logger = createLogger('identity');
 
@@ -55,6 +56,19 @@ export class AuthService {
       await tx.user.create({
         data: { id, phoneHash, phoneEnc, status: 'active', ageVerified: false },
       });
+      // P1-02: consent ledger starts at signup (notice shown pre-verification).
+      // Append-only rows under the new owner's RLS context, same transaction.
+      for (const purpose of SIGNUP_PURPOSES) {
+        await tx.consent.create({
+          data: {
+            userId: id,
+            purpose,
+            granted: true,
+            channel: 'otp_signup',
+            noticeVersion: this.config.CONSENT_NOTICE_VERSION,
+          },
+        });
+      }
       return id;
     });
 

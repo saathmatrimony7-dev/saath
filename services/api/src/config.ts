@@ -50,6 +50,10 @@ const configSchema = z.object({
   LLM_DAILY_TOKEN_BUDGET_PAID: z.coerce.number().int().positive().default(200_000),
   LLM_GLOBAL_CIRCUIT_BREAKER_TOKENS: z.coerce.number().int().positive().default(50_000_000),
 
+  // Consent ledger (P1-02): notice version stamped on every consent row.
+  // Bump when the privacy notice text changes; do not reuse old versions.
+  CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
+
   // Cookies
   COOKIE_SECURE: z.stringbool().default(false), // must be true in staging/prod (HTTPS)
   COOKIE_DOMAIN: z.string().optional(),

@@ -28,8 +28,25 @@ model User {
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
   sessions Session[]
+  consents Consent[]
 
   @@map("users")
+}
+
+/// Append-only consent ledger (P1-02). Withdrawal = new row with granted=false.
+/// Application role has SELECT+INSERT only (no UPDATE/DELETE grant).
+model Consent {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  purpose       String
+  noticeVersion String   @map("notice_version")
+  granted       Boolean
+  channel       String   @default("app")
+  createdAt     DateTime @default(now()) @map("created_at")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose, createdAt(sort: Desc)])
+  @@map("consents")
 }
 
 model Session {

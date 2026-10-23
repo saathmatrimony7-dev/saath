@@ -5,9 +5,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { IdentityModule } from './modules/identity/identity.module';
 import { LlmGatewayModule } from './modules/llm-gateway/llm-gateway.module';
 import { TaxonomyModule } from './modules/taxonomy/taxonomy.module';
+import { ConsentModule } from './modules/consent/consent.module';
 
 @Module({
-  imports: [PrismaModule, IdentityModule, LlmGatewayModule, TaxonomyModule],
+  imports: [PrismaModule, IdentityModule, LlmGatewayModule, TaxonomyModule, ConsentModule],
   controllers: [HealthController, MeController],
 })
 export class AppModule {}
