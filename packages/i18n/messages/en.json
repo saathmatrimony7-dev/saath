@@ -2,11 +2,42 @@
   "common": {
     "appName": "Saath",
     "loading": "Loading…",
-    "error": "Something went wrong. Please try again."
+    "error": "Something went wrong. Please try again.",
+    "language": "Language"
   },
   "auth": {
-    "otpRequest": "Send OTP",
-    "otpVerify": "Verify",
-    "otpSent": "We sent a code to your phone."
+    "title": "Sign in to Saath",
+    "subtitle": "We will send a one-time code to your mobile number.",
+    "phoneLabel": "Mobile number",
+    "phonePlaceholder": "10-digit mobile number",
+    "sendOtp": "Send OTP",
+    "otpSent": "We sent a code to your phone.",
+    "codeLabel": "OTP code",
+    "codePlaceholder": "6-digit code",
+    "verify": "Verify",
+    "errorInvalidCode": "That code did not match. Please try again.",
+    "errorRateLimit": "Too many attempts. Please wait and try again.",
+    "errorGeneric": "Could not verify. Please try again."
+  },
+  "onboarding": {
+    "title": "Onboarding interview",
+    "inputPlaceholder": "Type your answer…",
+    "send": "Send",
+    "aiBadge": "AI",
+    "youBadge": "You",
+    "reviewLink": "Review profile",
+    "awaitingConfirmTitle": "Your profile draft is ready",
+    "sessionError": "Could not start the interview. Please try again.",
+    "turnError": "Your message could not be sent. Please try again."
+  },
+  "profile": {
+    "reviewTitle": "Review your profile",
+    "summaryLabel": "What we recorded",
+    "transcriptError": "Could not load your interview summary.",
+    "confirmButton": "Confirm profile",
+    "confirmedTitle": "Profile confirmed",
+    "confirmedBody": "Your profile is now live. You can edit it anytime from your account.",
+    "notProvided": "Not provided yet",
+    "confirmError": "Confirmation failed. Please try again."
   }
 }

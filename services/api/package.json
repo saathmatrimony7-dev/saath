@@ -17,6 +17,7 @@
     "db:migrate:dev": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:dev": "tsx scripts/dev-db.ts",
+    "e2e:serve": "tsx scripts/e2e-serve.ts",
     "prisma:generate": "prisma generate"
   },
   "dependencies": {

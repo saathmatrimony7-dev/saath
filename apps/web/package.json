@@ -1,0 +1,30 @@
+{
+  "name": "@saath/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Saath web app — Next.js 15 + Tailwind + next-intl (P1-08)",
+  "scripts": {
+    "dev": "next dev -p 3101",
+    "build": "next build",
+    "start": "next start -p 3101",
+    "lint": "node scripts/check-i18n.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@saath/i18n": "workspace:*",
+    "next": "^15.3.4",
+    "next-intl": "^4.3.9",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0",
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/node": "^24.7.2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.9.3"
+  }
+}

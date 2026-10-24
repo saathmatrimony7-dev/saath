@@ -40,6 +40,8 @@ The files in `.claude/agents/` describe specialist roles: architect, backend-eng
 - RLS policies are hand-written SQL appended to Prisma migrations; every user-data table gets ENABLE+FORCE RLS plus owner/service policies (ADR-0001).
 - Redaction regexes must be length-bounded (a 10 MB input caused catastrophic backtracking; regression test in packages/logger).
 - Embedded Postgres on Windows inits with the ANSI codepage (WIN1252 server encoding) — non-ASCII data (Hindi/Tamil) then fails with SQLSTATE 22P05. Fixed by `initdbFlags: ['--encoding=UTF8', '--locale=C']` in dev-db.ts and test/global-setup.ts; legacy data dirs are healed by `scripts/enable-app-login.ts` (pg_database encoding UPDATE).
+- `@swc/core` is pinned to 1.15.x (pnpm override): 1.16's self-loading carrier rejects default Windows drive ACLs and `next dev` fails to boot (swc#12442).
+- apps/web talks to the Core API same-origin via a next.config rewrite (`/api/core/*` → `{CORE_API_URL}/v1/*`) — do not add CORS to the API. Session tokens stay in httpOnly cookies; the browser only reads the CSRF double-submit cookie for the `x-csrf-token` header. SSE turns use `fetch` + stream reader (EventSource can't set headers).
 
 ## Commands (create in P0 and keep working)
 
@@ -49,6 +51,7 @@ The files in `.claude/agents/` describe specialist roles: architect, backend-eng
 - `make security` → semgrep + gitleaks + trivy + dependency audit
 - `node scripts/p0-exit-check.mjs` → P0 exit-criteria evidence runner
 - `pnpm check:llm-isolation` → proves the Anthropic SDK is confined to the LLM Gateway
+- `pnpm test:e2e` → Playwright web e2e (sign up + onboarding in en/hi; boots the Core API e2e server with embedded PG + mock OTP/engine)
 - Local DB without Docker: `cd services/api && pnpm db:dev` (embedded Postgres 16); with Docker: `make db-up`
 
 ## Non-negotiable rules

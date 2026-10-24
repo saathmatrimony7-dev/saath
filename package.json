@@ -11,6 +11,7 @@
     "build": "pnpm -r --if-present run build",
     "test": "pnpm -r --if-present run test",
     "test:py": "cd services/agents && uv run pytest && cd ../matching && uv run pytest",
+    "test:e2e": "pnpm --filter @saath/web run test:e2e",
     "lint": "eslint . && pnpm -r --if-present run lint",
     "typecheck": "pnpm -r --if-present run typecheck",
     "format": "prettier --check .",
@@ -26,8 +27,13 @@
       "prisma",
       "@prisma/engines",
       "esbuild",
-      "embedded-postgres"
-    ]
+      "embedded-postgres",
+      "@swc/core",
+      "@parcel/watcher"
+    ],
+    "overrides": {
+      "@swc/core": "1.15.33"
+    }
   },
   "devDependencies": {
     "eslint": "^9.37.0",

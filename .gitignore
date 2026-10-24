@@ -28,3 +28,13 @@ coverage/
 .swc-cache/
 
 .data/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+
+
+# TS incremental build info
+*.tsbuildinfo
+
