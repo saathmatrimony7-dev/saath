@@ -14,7 +14,6 @@ process.env.ONBOARDING_MAX_TURNS = '5';
 
 let t: TestApp;
 let client: TestClient;
-let userId: string;
 let other: TestClient;
 let hindi: TestClient;
 
@@ -58,7 +57,7 @@ async function start(locale: string, c: TestClient): Promise<StartResponse> {
 
 beforeAll(async () => {
   t = await bootTestApp();
-  ({ client, userId } = await signupTestUser(t, '+919100000501'));
+  ({ client } = await signupTestUser(t, '+919100000501'));
   other = (await signupTestUser(t, '+919100000502')).client;
   hindi = (await signupTestUser(t, '+919100000503')).client;
 });
