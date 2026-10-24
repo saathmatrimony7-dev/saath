@@ -21,6 +21,8 @@ class AgentConfig:
     llm_model_small: str = "claude-haiku-5-5"
     llm_model_mid: str = "claude-sonnet-5-5"
     llm_model_large: str = "claude-opus-5-5"
+    # A1 interview turn cap (DESIGN.md Q3: 25 turns then extract + confirm).
+    onboarding_max_turns: int = 25
 
 
 def load_config(env: dict[str, str] | None = None) -> AgentConfig:
@@ -39,4 +41,5 @@ def load_config(env: dict[str, str] | None = None) -> AgentConfig:
         llm_model_small=e.get("LLM_MODEL_SMALL", "claude-haiku-5-5"),
         llm_model_mid=e.get("LLM_MODEL_MID", "claude-sonnet-5-5"),
         llm_model_large=e.get("LLM_MODEL_LARGE", "claude-opus-5-5"),
+        onboarding_max_turns=int(e.get("ONBOARDING_MAX_TURNS", "25")),
     )

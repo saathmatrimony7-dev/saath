@@ -8,6 +8,7 @@ import { TaxonomyModule } from './modules/taxonomy/taxonomy.module';
 import { ConsentModule } from './modules/consent/consent.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PhotosModule } from './modules/photos/photos.module';
+import { OnboardingModule } from './modules/onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PhotosModule } from './modules/photos/photos.module';
     ConsentModule,
     ProfilesModule,
     PhotosModule,
+    OnboardingModule,
   ],
   controllers: [HealthController, MeController],
 })

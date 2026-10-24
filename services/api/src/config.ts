@@ -63,6 +63,13 @@ const configSchema = z.object({
   PHOTOS_MAX_UPLOAD_BYTES: z.coerce.number().int().positive().default(10_485_760), // 10 MB
   PHOTOS_URL_TTL_SEC: z.coerce.number().int().positive().default(900),
 
+  // A1 onboarding engine (P1-06): the real interview state machine runs in
+  // the agents service; Core drives it over HTTP. Mock = scripted engine for
+  // tests/dev (refused in production, like the other mock vendors).
+  ONBOARDING_ENGINE_TRANSPORT: z.enum(['mock', 'http']).default('mock'),
+  ONBOARDING_MAX_TURNS: z.coerce.number().int().positive().default(25),
+  AGENTS_SERVICE_URL: z.string().url().optional(),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
@@ -90,6 +97,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     if (cfg.OTP_PROVIDER === 'mock') violations.push('OTP_PROVIDER=mock');
     if (cfg.LLM_GATEWAY_TRANSPORT === 'mock') violations.push('LLM_GATEWAY_TRANSPORT=mock');
     if (cfg.STORAGE_PROVIDER === 'mock') violations.push('STORAGE_PROVIDER=mock');
+    if (cfg.ONBOARDING_ENGINE_TRANSPORT === 'mock') {
+      violations.push('ONBOARDING_ENGINE_TRANSPORT=mock');
+    }
     if (!cfg.COOKIE_SECURE) violations.push('COOKIE_SECURE=false');
     if (violations.length > 0) {
       throw new Error(`Refusing to boot in production with: ${violations.join(', ')}`);

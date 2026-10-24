@@ -41,6 +41,8 @@ def test_sdk_isolation():
     offenders = [
         p
         for p in src.rglob("*.py")
-        if re.search(r"^\s*(import|from)\s+anthropic\b", p.read_text(), re.MULTILINE)
+        if re.search(
+            r"^\s*(import|from)\s+anthropic\b", p.read_text(encoding="utf-8"), re.MULTILINE
+        )
     ]
     assert offenders == [], f"anthropic SDK imported in: {offenders}"

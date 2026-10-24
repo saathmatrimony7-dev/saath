@@ -36,6 +36,7 @@ model User {
   softPreferences SoftPreference[]
   disclosurePolicy DisclosurePolicy?
   photos Photo[]
+  onboardingSessions OnboardingSession[]
 
   @@map("users")
 }
@@ -169,6 +170,36 @@ model Photo {
 
   @@index([userId])
   @@map("photos")
+}
+
+/// A1 onboarding interview (P1-06). Transcript stays private until the user
+/// explicitly confirms their profile (status confirmed + visibility flip).
+model OnboardingSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  locale    String   @default("en")
+  status    String   @default("in_progress")
+  turnCount Int      @default(0) @map("turn_count")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  OnboardingMessage[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("onboarding_sessions")
+}
+
+model OnboardingMessage {
+  id        String   @id @default(uuid()) @db.Uuid
+  sessionId String   @map("session_id") @db.Uuid
+  role      String // 'user' | 'assistant'
+  content   String
+  seq       Int
+  createdAt DateTime @default(now()) @map("created_at")
+  session   OnboardingSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, seq])
+  @@map("onboarding_messages")
 }
 
 model DisclosurePolicy {

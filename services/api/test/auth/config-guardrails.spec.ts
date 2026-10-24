@@ -13,6 +13,8 @@ const baseEnv = {
   OTP_PROVIDER: 'msg91',
   LLM_GATEWAY_TRANSPORT: 'anthropic',
   STORAGE_PROVIDER: 's3',
+  ONBOARDING_ENGINE_TRANSPORT: 'http',
+  AGENTS_SERVICE_URL: 'http://127.0.0.1:8000',
   COOKIE_SECURE: 'true',
 } as NodeJS.ProcessEnv;
 
@@ -39,5 +41,11 @@ describe('production config guardrails', () => {
     expect(() => loadConfig({ ...baseEnv, STORAGE_PROVIDER: 'mock' })).toThrow(
       /STORAGE_PROVIDER=mock/,
     );
+  });
+
+  it('refuses ONBOARDING_ENGINE_TRANSPORT=mock in production', () => {
+    expect(() =>
+      loadConfig({ ...baseEnv, ONBOARDING_ENGINE_TRANSPORT: 'mock' }),
+    ).toThrow(/ONBOARDING_ENGINE_TRANSPORT=mock/);
   });
 });
