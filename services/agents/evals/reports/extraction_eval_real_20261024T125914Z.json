@@ -1,0 +1,434 @@
+{
+  "mode": "real",
+  "model_version": "a2-extract-v1",
+  "personas": 20,
+  "checks": 229,
+  "matched": 209,
+  "accuracy": 0.9127,
+  "threshold": 0.9,
+  "pass": true,
+  "per_persona": [
+    {
+      "id": "g01",
+      "locale": "en",
+      "matched": [
+        "profile.profession='teacher'",
+        "profile.education_level='B.Ed'",
+        "profile.income_band='5-10L'",
+        "profile.city_id='pune'",
+        "profile.diet='veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=163",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-brahmin'",
+        "preferences.age_min=28",
+        "preferences.age_max=34",
+        "dealbreaker:diet:eq:'veg'"
+      ],
+      "missed": [
+        "preferences.cities=['pune', 'mumbai']"
+      ],
+      "accuracy": 0.9231,
+      "seconds": 8.57
+    },
+    {
+      "id": "g02",
+      "locale": "en",
+      "matched": [
+        "profile.profession='software engineer'",
+        "profile.city_id='bengaluru'",
+        "profile.diet='non_veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=175",
+        "profile.religion_id='muslim'",
+        "profile.community_id='muslim-sunni'",
+        "preferences.age_min=24",
+        "preferences.age_max=29",
+        "preferences.relocate_ok=False"
+      ],
+      "missed": [
+        "preferences.cities=['bengaluru']",
+        "dealbreaker:cities:in:['bengaluru']"
+      ],
+      "accuracy": 0.8333,
+      "seconds": 6.14
+    },
+    {
+      "id": "g03",
+      "locale": "en",
+      "matched": [
+        "profile.profession='dentist'",
+        "profile.education_level='MDS'",
+        "profile.income_band='10-20L'",
+        "profile.city_id='chennai'",
+        "profile.diet='veg'",
+        "profile.marital_status='divorced'",
+        "profile.height_cm=157",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-iyer'",
+        "preferences.age_min=32",
+        "preferences.age_max=40"
+      ],
+      "missed": [
+        "profile.mother_tongue='ta'",
+        "preferences.diet_ok=['veg']",
+        "dealbreaker:marital_status:neq:'never_married'"
+      ],
+      "accuracy": 0.7857,
+      "seconds": 11.28
+    },
+    {
+      "id": "g04",
+      "locale": "en",
+      "matched": [
+        "profile.profession='accountant'",
+        "profile.city_id='kochi'",
+        "profile.diet='eggetarian'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=170",
+        "profile.religion_id='christian'",
+        "profile.community_id='christian-catholic'",
+        "preferences.age_min=26",
+        "preferences.age_max=31",
+        "preferences.relocate_ok=True",
+        "dealbreaker:religion_id:eq:'christian'"
+      ],
+      "missed": [],
+      "accuracy": 1.0,
+      "seconds": 12.06
+    },
+    {
+      "id": "g05",
+      "locale": "hi",
+      "matched": [
+        "profile.profession='nurse'",
+        "profile.education_level='B.Sc Nursing'",
+        "profile.income_band='0-5L'",
+        "profile.city_id='jaipur'",
+        "profile.diet='veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=160",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-rajput'",
+        "preferences.age_min=26",
+        "preferences.age_max=31"
+      ],
+      "missed": [
+        "preferences.cities=['jaipur']"
+      ],
+      "accuracy": 0.9167,
+      "seconds": 8.05
+    },
+    {
+      "id": "g06",
+      "locale": "en",
+      "matched": [
+        "profile.profession='business'",
+        "profile.education_level='B.Com'",
+        "profile.income_band='20-35L'",
+        "profile.city_id='ludhiana'",
+        "profile.diet='non_veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=183",
+        "profile.religion_id='sikh'",
+        "profile.community_id='sikh-jat'",
+        "preferences.age_min=25",
+        "preferences.age_max=30",
+        "preferences.relocate_ok=True",
+        "dealbreaker:religion_id:eq:'sikh'"
+      ],
+      "missed": [
+        "preferences.cities=['chandigarh']"
+      ],
+      "accuracy": 0.9286,
+      "seconds": 7.71
+    },
+    {
+      "id": "g07",
+      "locale": "en",
+      "matched": [
+        "profile.profession='chartered accountant'",
+        "profile.city_id='ahmedabad'",
+        "profile.diet='jain_veg'",
+        "profile.height_cm=155",
+        "profile.religion_id='jain'",
+        "profile.community_id='jain-shwetambar'",
+        "preferences.age_min=27",
+        "preferences.age_max=32",
+        "dealbreaker:religion_id:eq:'jain'"
+      ],
+      "missed": [],
+      "accuracy": 1.0,
+      "seconds": 6.36
+    },
+    {
+      "id": "g08",
+      "locale": "en",
+      "matched": [
+        "profile.profession='clerk'",
+        "profile.education_level='BA'",
+        "profile.income_band='5-10L'",
+        "profile.city_id='nagpur'",
+        "profile.diet='non_veg'",
+        "profile.marital_status='widowed'",
+        "profile.height_cm=168",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-maratha'",
+        "preferences.age_min=28",
+        "preferences.age_max=35"
+      ],
+      "missed": [],
+      "accuracy": 1.0,
+      "seconds": 7.21
+    },
+    {
+      "id": "g09",
+      "locale": "hi",
+      "matched": [
+        "profile.profession='journalist'",
+        "profile.city_id='lucknow'",
+        "profile.diet='non_veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=173",
+        "profile.religion_id='muslim'",
+        "profile.community_id='muslim-shia'",
+        "preferences.age_min=24",
+        "preferences.age_max=29",
+        "preferences.relocate_ok=False",
+        "dealbreaker:community_id:eq:'muslim-shia'"
+      ],
+      "missed": [
+        "preferences.cities=['lucknow']"
+      ],
+      "accuracy": 0.9167,
+      "seconds": 9.67
+    },
+    {
+      "id": "g10",
+      "locale": "en",
+      "matched": [
+        "profile.profession='HR manager'",
+        "profile.education_level='MBA'",
+        "profile.income_band='10-20L'",
+        "profile.city_id='bengaluru'",
+        "profile.diet='vegan'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=165",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-nair'",
+        "preferences.age_min=29",
+        "preferences.age_max=35"
+      ],
+      "missed": [
+        "dealbreaker:diet:eq:'vegan'"
+      ],
+      "accuracy": 0.9167,
+      "seconds": 10.47
+    },
+    {
+      "id": "g11",
+      "locale": "en",
+      "matched": [
+        "profile.profession='business'",
+        "profile.city_id='surat'",
+        "profile.diet='veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=178",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-patel'",
+        "preferences.age_min=23",
+        "preferences.age_max=27",
+        "preferences.relocate_ok=True",
+        "dealbreaker:diet:eq:'veg'"
+      ],
+      "missed": [
+        "preferences.cities=['mumbai']",
+        "preferences.diet_ok=['veg']"
+      ],
+      "accuracy": 0.8462,
+      "seconds": 8.47
+    },
+    {
+      "id": "g12",
+      "locale": "en",
+      "matched": [
+        "profile.profession='research scientist'",
+        "profile.education_level='PhD'",
+        "profile.income_band='10-20L'",
+        "profile.city_id='kolkata'",
+        "profile.diet='eggetarian'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=160",
+        "profile.religion_id='hindu'",
+        "preferences.age_min=33",
+        "preferences.age_max=40",
+        "preferences.relocate_ok=True"
+      ],
+      "missed": [],
+      "accuracy": 1.0,
+      "seconds": 7.24
+    },
+    {
+      "id": "g13",
+      "locale": "ta",
+      "matched": [
+        "profile.profession='software engineer'",
+        "profile.city_id='chennai'",
+        "profile.diet='veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=180",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-iyengar'",
+        "preferences.age_min=26",
+        "preferences.age_max=30",
+        "dealbreaker:diet:eq:'veg'"
+      ],
+      "missed": [
+        "preferences.cities=['chennai', 'bengaluru']"
+      ],
+      "accuracy": 0.9091,
+      "seconds": 8.96
+    },
+    {
+      "id": "g14",
+      "locale": "en",
+      "matched": [
+        "profile.profession='lawyer'",
+        "profile.education_level='LLB'",
+        "profile.income_band='10-20L'",
+        "profile.city_id='delhi'",
+        "profile.diet='non_veg'",
+        "profile.marital_status='divorced'",
+        "profile.height_cm=163",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-kayastha'",
+        "preferences.age_min=31",
+        "preferences.age_max=38"
+      ],
+      "missed": [
+        "preferences.cities=['delhi']"
+      ],
+      "accuracy": 0.9167,
+      "seconds": 10.52
+    },
+    {
+      "id": "g15",
+      "locale": "en",
+      "matched": [
+        "profile.education_level='MA Political Science'",
+        "profile.city_id='hyderabad'",
+        "profile.diet='veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=173",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-reddy'",
+        "preferences.age_min=25",
+        "preferences.age_max=30"
+      ],
+      "missed": [
+        "profile.profession='teacher'",
+        "preferences.cities=['hyderabad']",
+        "preferences.diet_ok=['veg']"
+      ],
+      "accuracy": 0.75,
+      "seconds": 9.03
+    },
+    {
+      "id": "g16",
+      "locale": "en",
+      "matched": [
+        "profile.profession='UX designer'",
+        "profile.city_id='mumbai'",
+        "profile.diet='non_veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=168",
+        "profile.religion_id='no-religion'",
+        "preferences.age_min=26",
+        "preferences.age_max=32",
+        "preferences.relocate_ok=True"
+      ],
+      "missed": [],
+      "accuracy": 1.0,
+      "seconds": 6.02
+    },
+    {
+      "id": "g17",
+      "locale": "hi",
+      "matched": [
+        "profile.profession='teacher'",
+        "profile.city_id='kanpur'",
+        "profile.diet='eggetarian'",
+        "profile.marital_status='widowed'",
+        "profile.height_cm=157",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-yadav'",
+        "preferences.age_min=33",
+        "preferences.age_max=40"
+      ],
+      "missed": [
+        "preferences.marital_ok=['widowed', 'divorced']"
+      ],
+      "accuracy": 0.9,
+      "seconds": 6.45
+    },
+    {
+      "id": "g18",
+      "locale": "en",
+      "matched": [
+        "profile.profession='agriculture officer'",
+        "profile.education_level='MSc Agriculture'",
+        "profile.city_id='bengaluru'",
+        "profile.diet='veg'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=175",
+        "profile.religion_id='hindu'",
+        "profile.community_id='hindu-vokkaliga'",
+        "preferences.age_min=24",
+        "preferences.age_max=29",
+        "preferences.relocate_ok=False"
+      ],
+      "missed": [],
+      "accuracy": 1.0,
+      "seconds": 9.68
+    },
+    {
+      "id": "g19",
+      "locale": "en",
+      "matched": [
+        "profile.profession='physiotherapist'",
+        "profile.city_id='guwahati'",
+        "profile.diet='eggetarian'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=165",
+        "profile.religion_id='christian'",
+        "profile.community_id='christian-protestant'",
+        "preferences.age_min=28",
+        "preferences.age_max=34",
+        "dealbreaker:religion_id:eq:'christian'"
+      ],
+      "missed": [],
+      "accuracy": 1.0,
+      "seconds": 7.47
+    },
+    {
+      "id": "g20",
+      "locale": "en",
+      "matched": [
+        "profile.profession='data analyst'",
+        "profile.city_id='indore'",
+        "profile.diet='eggetarian'",
+        "profile.marital_status='never_married'",
+        "profile.height_cm=170",
+        "profile.community_id='hindu-brahmin'",
+        "preferences.age_min=24",
+        "preferences.age_max=28"
+      ],
+      "missed": [
+        "profile.religion_id='hindu'",
+        "preferences.cities=['indore', 'bhopal']"
+      ],
+      "accuracy": 0.8,
+      "seconds": 7.2
+    }
+  ]
+}
