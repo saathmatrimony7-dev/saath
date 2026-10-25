@@ -4,14 +4,14 @@ Scope: `modules/kyc` (KycProvider interface, mock + IDfy reference impl), `POST 
 
 ## Security — PASS
 
-| Sev | Finding | Disposition |
-|-----|---------|-------------|
-| Low | KYC webhook: Zod 400 before signature 401 (shape probing) | Same accepted posture as the WhatsApp webhook (P1-09 review); vendor shape is public; fixed properly with the real vendor |
-| Low | MockKycProvider providerRef is deterministic (`mock-kyc-<uid>-<n>-<type>`) | Test-only provider; real providers mint unguessable refs; prod guardrail refuses mock |
-| — | Signature: HMAC-SHA256 over raw body, constant-time, 401 on missing/invalid; dev default secret refused in production (guardrail test) | No issue |
-| — | Idempotency: `webhook_events` (source `kyc`), first-writer-wins; processed/unknown refs ignored — replay test asserts no re-application | No issue |
-| — | Tier writes run only in the owner RLS context; webhook writes only in `app.service = 'verification'`; monotonic tiers (fail never lowers) — tested | No issue |
-| — | Consent gate before start; blocked accounts cannot start new checks — tested | No issue |
+| Sev | Finding                                                                                                                                            | Disposition                                                                                                               |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Low | KYC webhook: Zod 400 before signature 401 (shape probing)                                                                                          | Same accepted posture as the WhatsApp webhook (P1-09 review); vendor shape is public; fixed properly with the real vendor |
+| Low | MockKycProvider providerRef is deterministic (`mock-kyc-<uid>-<n>-<type>`)                                                                         | Test-only provider; real providers mint unguessable refs; prod guardrail refuses mock                                     |
+| —   | Signature: HMAC-SHA256 over raw body, constant-time, 401 on missing/invalid; dev default secret refused in production (guardrail test)             | No issue                                                                                                                  |
+| —   | Idempotency: `webhook_events` (source `kyc`), first-writer-wins; processed/unknown refs ignored — replay test asserts no re-application            | No issue                                                                                                                  |
+| —   | Tier writes run only in the owner RLS context; webhook writes only in `app.service = 'verification'`; monotonic tiers (fail never lowers) — tested | No issue                                                                                                                  |
+| —   | Consent gate before start; blocked accounts cannot start new checks — tested                                                                       | No issue                                                                                                                  |
 
 ## Privacy — PASS
 

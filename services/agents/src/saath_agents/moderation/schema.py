@@ -4,7 +4,7 @@ hygiene: moderation consumers act on categories, not content)."""
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -25,5 +25,6 @@ class ModerationVerdict(BaseModel):
 
     label: LABELS
     confidence: float = Field(ge=0.0, le=1.0)
-    signals: list[str] = Field(default_factory=list, max_length=5)  # short keywords only
+    # short keywords only (<= 40 chars each, <= 5 total) — never user prose
+    signals: list[Annotated[str, Field(max_length=40)]] = Field(default_factory=list, max_length=5)
     model_version: str = Field(default=MODEL_VERSION, max_length=32)

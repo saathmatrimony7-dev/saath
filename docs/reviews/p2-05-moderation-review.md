@@ -4,12 +4,12 @@ Scope: Python `moderation` package (A9Classifier + strict verdict schema + versi
 
 ## Security — PASS
 
-| Sev | Finding | Disposition |
-|-----|---------|-------------|
-| — | Route is service-token guarded (401 tested); strict body (422 on unknown fields); labels validated against the closed set server-side in Core before acting | No issue |
-| — | Input bounded (2000 chars); verdict tokens capped (300); one repair retry | No issue |
-| — | Injection-in-text covered by corpus item en15 (embedded "ignore previous instructions") — classified by content in the real run (detected) | No issue |
-| — | Classification failure can never break reporting (log + continue, tested with mock) | No issue |
+| Sev | Finding                                                                                                                                                     | Disposition |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| —   | Route is service-token guarded (401 tested); strict body (422 on unknown fields); labels validated against the closed set server-side in Core before acting | No issue    |
+| —   | Input bounded (2000 chars); verdict tokens capped (300); one repair retry                                                                                   | No issue    |
+| —   | Injection-in-text covered by corpus item en15 (embedded "ignore previous instructions") — classified by content in the real run (detected)                  | No issue    |
+| —   | Classification failure can never break reporting (log + continue, tested with mock)                                                                         | No issue    |
 
 ## Privacy — PASS
 

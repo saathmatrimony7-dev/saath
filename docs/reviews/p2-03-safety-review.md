@@ -4,13 +4,13 @@ Scope: `modules/safety` (reports + blocks), `blocks`/`user_reports` tables, `use
 
 ## Security — PASS
 
-| Sev | Finding | Disposition |
-|-----|---------|-------------|
-| Low | `safety` service context can read any user row by id (needed to validate report/block targets) | Same exposure class as the existing identity/channels contexts; policy stays SELECT-only; no bulk endpoint exists |
-| — | `isBlockedEitherWay` initially queried under the caller's owner context, which RLS-correctly hides the reverse direction's row — fixed to run in the service context (regression test asserts both directions) | Fixed in-task |
-| — | Blocks: idempotent upsert, self-block rejected, `blocks_no_self_ck` DB check, unique pair constraint | No issue |
-| — | Reports: closed reason vocabulary (400 otherwise), append-only app role (no UPDATE/DELETE grants), open-report dedupe per reporter+subject pair, subject existence in service context (unknown → 404, no oracle) | No issue |
-| — | Block list returns user ids only — no names/phones | No issue |
+| Sev | Finding                                                                                                                                                                                                          | Disposition                                                                                                       |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Low | `safety` service context can read any user row by id (needed to validate report/block targets)                                                                                                                   | Same exposure class as the existing identity/channels contexts; policy stays SELECT-only; no bulk endpoint exists |
+| —   | `isBlockedEitherWay` initially queried under the caller's owner context, which RLS-correctly hides the reverse direction's row — fixed to run in the service context (regression test asserts both directions)   | Fixed in-task                                                                                                     |
+| —   | Blocks: idempotent upsert, self-block rejected, `blocks_no_self_ck` DB check, unique pair constraint                                                                                                             | No issue                                                                                                          |
+| —   | Reports: closed reason vocabulary (400 otherwise), append-only app role (no UPDATE/DELETE grants), open-report dedupe per reporter+subject pair, subject existence in service context (unknown → 404, no oracle) | No issue                                                                                                          |
+| —   | Block list returns user ids only — no names/phones                                                                                                                                                               | No issue                                                                                                          |
 
 ## Privacy — PASS
 

@@ -1,6 +1,6 @@
 # P2 exit-criteria evidence
 
-Generated: 2026-10-25T13:05:31.633Z (local run; CI re-runs all checks on every PR)
+Generated: 2026-10-25T13:15:47.719Z (local run; CI re-runs all checks on every PR)
 
 | Check | Result |
 |-------|--------|
@@ -24,23 +24,23 @@ Generated: 2026-10-25T13:05:31.633Z (local run; CI re-runs all checks on every P
 ### pnpm test (API: RLS incl. P2 tables, authz matrix, KYC, safety, admin) (exit 0)
 
 ```
-services/api test: [2m   Start at [22m 18:33:26
-services/api test: [2m   Duration [22m 52.23s[2m (transform 1.39s, setup 0ms, collect 21.11s, tests 16.67s, environment 7ms, prepare 2.18s)[22m
+services/api test: [2m   Start at [22m 18:43:52
 services/api test: [90m [2m❯[22m Proxy._transactionWithCallback ../../node_modules/.pnpm/@prisma+client@6.19.3_prism_1d040ab5215f59f0e27ddee7f0cf082e/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:[2m722:18[22m[39m
 services/api test: [90m [2m❯[22m test/rls/rls.spec.ts:[2m286:5[22m[39m
 services/api test: [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+services/api test: [2m   Duration [22m 48.24s[2m (transform 1.43s, setup 0ms, collect 19.19s, tests 15.35s, environment 6ms, prepare 2.03s)[22m
 services/api test: Done
 ```
 
 ### packages/logger redaction tests (exit 0)
 
 ```
- [32m✓[39m test/redact.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 113[2mms[22m[39m
+ [32m✓[39m test/redact.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 114[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
 [2m      Tests [22m [1m[32m9 passed[39m[22m[90m (9)[39m
-[2m   Start at [22m 18:34:20
-[2m   Duration [22m 881ms[2m (transform 157ms, setup 0ms, collect 229ms, tests 113ms, environment 0ms, prepare 159ms)[22m
+[2m   Start at [22m 18:44:42
+[2m   Duration [22m 866ms[2m (transform 159ms, setup 0ms, collect 205ms, tests 114ms, environment 0ms, prepare 160ms)[22m
 ```
 
 ### i18n key parity (en/hi/ta) (exit 0)
@@ -68,10 +68,10 @@ tests\test_matching_smoke.py .                                           [100%]
 ### Playwright web e2e (onboarding in English and Hindi) (exit 0)
 
 ```
-  ✓  1 e2e\onboarding.en.spec.ts:5:5 › sign up and complete onboarding in English (13.7s)
-  ✓  2 e2e\onboarding.hi.spec.ts:5:5 › sign up and complete onboarding in Hindi (4.7s)
+  ✓  1 e2e\onboarding.en.spec.ts:5:5 › sign up and complete onboarding in English (13.2s)
+  ✓  2 e2e\onboarding.hi.spec.ts:5:5 › sign up and complete onboarding in Hindi (4.5s)
 
-  2 passed (34.2s)
+  2 passed (33.3s)
 [WebServer] ◇ injected env (1) from .env.local
 [WebServer] ◇ injected env (0) from .env
 ```
@@ -122,9 +122,9 @@ canary detected, commit blocked (exit nonzero)
     ○ ░
     ░    gitleaks
 
-[90m6:35PM[0m [32mINF[0m 37 commits scanned.
-[90m6:35PM[0m [32mINF[0m scan completed in 419ms
-[90m6:35PM[0m [32mINF[0m no leaks found
+[90m6:45PM[0m [32mINF[0m 38 commits scanned.
+[90m6:45PM[0m [32mINF[0m scan completed in 274ms
+[90m6:45PM[0m [32mINF[0m no leaks found
 ```
 
 ### terraform fmt -check (exit 0)
