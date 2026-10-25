@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { IdentityModule } from '../identity/identity.module';
+import { SafetyModule } from '../safety/safety.module';
 import { PrismaModule } from '../../prisma/prisma.module';
 import {
   DealbreakersController,
@@ -11,7 +12,7 @@ import {
 import { ProfilesService } from './profiles.service';
 
 @Module({
-  imports: [IdentityModule, PrismaModule],
+  imports: [IdentityModule, PrismaModule, SafetyModule],
   controllers: [
     MeProfileController,
     PreferencesController,

@@ -8,12 +8,7 @@ import { z } from 'zod';
 
 export const PROFILE_VISIBILITIES = ['public', 'members', 'matches_only', 'hidden'] as const;
 export const DIET_VALUES = ['veg', 'eggetarian', 'non_veg', 'jain_veg', 'vegan'] as const;
-export const MARITAL_STATUSES = [
-  'never_married',
-  'divorced',
-  'widowed',
-  'separated',
-] as const;
+export const MARITAL_STATUSES = ['never_married', 'divorced', 'widowed', 'separated'] as const;
 
 const attributeValue = z.union([
   z.string().max(500),
@@ -38,7 +33,10 @@ export const patchProfileSchema = z
     religionId: z.string().max(64).nullable().optional(),
     communityId: z.string().max(64).nullable().optional(),
     subCommunityId: z.string().max(64).nullable().optional(),
-    motherTongue: z.string().regex(/^[a-z]{2,3}$/).optional(),
+    motherTongue: z
+      .string()
+      .regex(/^[a-z]{2,3}$/)
+      .optional(),
     visibility: z.enum(PROFILE_VISIBILITIES).optional(),
     attributes: z
       .array(
@@ -84,9 +82,7 @@ const ruleValue = z.union([z.string().max(200), z.number(), z.boolean()]);
 const ruleSchema = z.discriminatedUnion('op', [
   z.object({ op: z.literal('eq'), value: ruleValue }).strict(),
   z.object({ op: z.literal('neq'), value: ruleValue }).strict(),
-  z
-    .object({ op: z.literal('in'), value: z.array(z.string().max(200)).min(1).max(50) })
-    .strict(),
+  z.object({ op: z.literal('in'), value: z.array(z.string().max(200)).min(1).max(50) }).strict(),
   z
     .object({ op: z.literal('not_in'), value: z.array(z.string().max(200)).min(1).max(50) })
     .strict(),

@@ -11,6 +11,7 @@ import { PhotosModule } from './modules/photos/photos.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { WhatsAppModule } from './modules/channels/whatsapp/whatsapp.module';
 import { KycModule } from './modules/kyc/kyc.module';
+import { SafetyModule } from './modules/safety/safety.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { KycModule } from './modules/kyc/kyc.module';
     OnboardingModule,
     WhatsAppModule,
     KycModule,
+    SafetyModule,
   ],
   controllers: [HealthController, MeController],
 })

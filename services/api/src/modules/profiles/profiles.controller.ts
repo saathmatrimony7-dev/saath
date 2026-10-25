@@ -113,10 +113,7 @@ export class PublicProfilesController {
   constructor(@Inject(ProfilesService) private readonly profiles: ProfilesService) {}
 
   @Get(':id')
-  get(
-    @CurrentUser() requesterId: string,
-    @Param('id', ParseUUIDPipe) targetId: string,
-  ) {
+  get(@CurrentUser() requesterId: string, @Param('id', ParseUUIDPipe) targetId: string) {
     return this.profiles.getPublicProfile(requesterId, targetId);
   }
 }

@@ -38,6 +38,10 @@ model User {
   photos Photo[]
   onboardingSessions OnboardingSession[]
   kycChecks KycCheck[]
+  blocksMade Block[] @relation("blocksMade")
+  blocksReceived Block[] @relation("blocksReceived")
+  reportsMade UserReport[] @relation("reportsMade")
+  reportsReceived UserReport[] @relation("reportsReceived")
 
   @@map("users")
 }
@@ -354,4 +358,37 @@ model KycCheck {
   @@index([userId, createdAt(sort: Desc)])
   @@index([providerRef])
   @@map("kyc_checks")
+}
+
+/// Block list (P2-03, DESIGN.md J9/T8). Hides profiles both directions and
+/// will suppress matches/messages (wired where those surfaces land).
+model Block {
+  id        String   @id @default(uuid()) @db.Uuid
+  blockerId String   @map("blocker_id") @db.Uuid
+  blockedId String   @map("blocked_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  blocker   User     @relation("blocksMade", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("blocksReceived", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+  @@map("blocks")
+}
+
+/// User reports (P2-03). Append-only from the app role: status changes are a
+/// moderator/service context action (admin console, P2-06).
+model UserReport {
+  id         String   @id @default(uuid()) @db.Uuid
+  reporterId String   @map("reporter_id") @db.Uuid
+  subjectId  String   @map("subject_id") @db.Uuid
+  reason     String
+  details    String?  @db.VarChar(1000)
+  status     String   @default("open") // open | reviewing | resolved | dismissed
+  createdAt  DateTime @default(now()) @map("created_at")
+  reporter   User     @relation("reportsMade", fields: [reporterId], references: [id], onDelete: Cascade)
+  subject    User     @relation("reportsReceived", fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([subjectId, status])
+  @@index([reporterId])
+  @@map("user_reports")
 }

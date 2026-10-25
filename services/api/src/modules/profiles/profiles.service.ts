@@ -8,6 +8,7 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { Prisma } from '@prisma/client';
 import { createLogger } from '@saath/logger';
 import { PrismaService } from '../../prisma/prisma.service';
+import { SafetyService } from '../safety/safety.service';
 import type {
   PatchProfileDto,
   PutDealbreakersDto,
@@ -46,7 +47,10 @@ interface AttributeDefRow {
 
 @Injectable()
 export class ProfilesService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(SafetyService) private readonly safety: SafetyService,
+  ) {}
 
   async getProfile(userId: string) {
     return this.prisma.withUser(userId, async (tx) => {
@@ -70,50 +74,55 @@ export class ProfilesService {
     let result: Awaited<ReturnType<typeof this.prisma.profile.update>>;
     try {
       result = await this.prisma.withUser(userId, async (tx) => {
-      // Resolve the effective community for attribute scoping (PATCH may
-      // change it in the same request).
-      const existing = await tx.profile.findUnique({ where: { userId } });
-      const effectiveCommunity =
-        dto.communityId !== undefined ? dto.communityId : (existing?.communityId ?? null);
+        // Resolve the effective community for attribute scoping (PATCH may
+        // change it in the same request).
+        const existing = await tx.profile.findUnique({ where: { userId } });
+        const effectiveCommunity =
+          dto.communityId !== undefined ? dto.communityId : (existing?.communityId ?? null);
 
-      if (attributes.length > 0) {
-        const defs = await tx.attributeDefinition.findMany({
-          where: { key: { in: attributes.map((a) => a.key) } },
-        });
-        const defByKey = new Map(defs.map((d) => [d.key, d as AttributeDefRow]));
+        if (attributes.length > 0) {
+          const defs = await tx.attributeDefinition.findMany({
+            where: { key: { in: attributes.map((a) => a.key) } },
+          });
+          const defByKey = new Map(defs.map((d) => [d.key, d as AttributeDefRow]));
+          for (const attr of attributes) {
+            this.validateAttribute(
+              attr.key,
+              attr.value,
+              defByKey.get(attr.key),
+              effectiveCommunity,
+            );
+          }
+        }
+
+        const profile = existing
+          ? await tx.profile.update({
+              where: { userId },
+              data: { ...data, profileVersion: { increment: 1 } },
+            })
+          : await tx.profile.create({ data: { userId, ...data } });
+
         for (const attr of attributes) {
-          this.validateAttribute(attr.key, attr.value, defByKey.get(attr.key), effectiveCommunity);
-        }
-      }
-
-      const profile = existing
-        ? await tx.profile.update({
-            where: { userId },
-            data: { ...data, profileVersion: { increment: 1 } },
-          })
-        : await tx.profile.create({ data: { userId, ...data } });
-
-      for (const attr of attributes) {
-        const existingAttr = await tx.profileAttribute.findFirst({
-          where: { userId, attributeKey: attr.key },
-        });
-        if (existingAttr) {
-          await tx.profileAttribute.update({
-            where: { id: existingAttr.id },
-            data: { value: attr.value as object, visibility: attr.visibility },
+          const existingAttr = await tx.profileAttribute.findFirst({
+            where: { userId, attributeKey: attr.key },
           });
-        } else {
-          await tx.profileAttribute.create({
-            data: {
-              userId,
-              attributeKey: attr.key,
-              value: attr.value as object,
-              visibility: attr.visibility,
-            },
-          });
+          if (existingAttr) {
+            await tx.profileAttribute.update({
+              where: { id: existingAttr.id },
+              data: { value: attr.value as object, visibility: attr.visibility },
+            });
+          } else {
+            await tx.profileAttribute.create({
+              data: {
+                userId,
+                attributeKey: attr.key,
+                value: attr.value as object,
+                visibility: attr.visibility,
+              },
+            });
+          }
         }
-      }
-      return profile;
+        return profile;
       });
     } catch (err) {
       this.rethrowPrisma(err);
@@ -245,6 +254,11 @@ export class ProfilesService {
    */
   async getPublicProfile(requesterId: string, targetId: string) {
     if (requesterId !== targetId) {
+      throw new NotFoundException('profile not found');
+    }
+    // Blocked pairs never see each other (T8). Owner-only today; P3 search and
+    // P4 chat must also consult SafetyService.isBlockedEitherWay.
+    if (await this.safety.isBlockedEitherWay(requesterId, targetId)) {
       throw new NotFoundException('profile not found');
     }
     const { profile } = await this.getProfile(requesterId);

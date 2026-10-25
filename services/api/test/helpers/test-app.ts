@@ -106,6 +106,9 @@ export class TestClient {
   get(path: string, headers?: Record<string, string>) {
     return this.req('GET', path, undefined, headers);
   }
+  delete(path: string, headers?: Record<string, string>) {
+    return this.req('DELETE', path, undefined, headers);
+  }
   post(path: string, body?: unknown, headers?: Record<string, string>) {
     return this.req('POST', path, body, headers);
   }
