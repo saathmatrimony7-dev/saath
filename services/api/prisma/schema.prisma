@@ -42,6 +42,8 @@ model User {
   blocksReceived Block[] @relation("blocksReceived")
   reportsMade UserReport[] @relation("reportsMade")
   reportsReceived UserReport[] @relation("reportsReceived")
+  riskScore RiskScore?
+  safetyCases SafetyCase[]
 
   @@map("users")
 }
@@ -391,4 +393,36 @@ model UserReport {
   @@index([subjectId, status])
   @@index([reporterId])
   @@map("user_reports")
+}
+
+/// A3 risk scoring (P2-04): deterministic signals, recomputed on safety events.
+/// Owner-readable score; writes happen in the 'risk' service context.
+model RiskScore {
+  userId     String   @id @map("user_id") @db.Uuid
+  score      Int
+  signals    Json // [{signal, weight, detail}] — auditability of the score
+  computedAt DateTime @default(now()) @map("computed_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("risk_scores")
+}
+
+/// Human review queue (P2-04, DESIGN.md A3 exit rule): NEVER auto-ban from a
+/// case — hard signals (underage) block via their own path. Service-context
+/// only: there is deliberately no owner policy (deny by default).
+model SafetyCase {
+  id            String    @id @default(uuid()) @db.Uuid
+  subjectId     String    @map("subject_id") @db.Uuid
+  source        String // 'risk' | 'report' | 'kyc' | 'moderation' | 'a9'
+  severity      String // low | medium | high | critical
+  status        String    @default("open") // open | reviewing | resolved | dismissed
+  decision      String?
+  decidedBy     String?   @map("decided_by") @db.Uuid
+  decidedAt     DateTime? @map("decided_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  subject       User      @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@index([subjectId, status])
+  @@index([status, severity])
+  @@map("safety_cases")
 }

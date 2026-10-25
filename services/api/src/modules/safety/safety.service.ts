@@ -13,13 +13,17 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { createLogger } from '@saath/logger';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RiskScoringService } from './risk-scoring.service';
 import type { ReportUserDto } from './safety.dto';
 
 const logger = createLogger('safety');
 
 @Injectable()
 export class SafetyService {
-  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
+  constructor(
+    @Inject(PrismaService) private readonly prisma: PrismaService,
+    @Inject(RiskScoringService) private readonly risk: RiskScoringService,
+  ) {}
 
   /** Pre-auth existence check in the safety service context (RLS). */
   private async findUser(id: string) {
@@ -45,6 +49,7 @@ export class SafetyService {
         data: { reporterId, subjectId, reason: dto.reason, details: dto.details ?? null },
       }),
     );
+    await this.risk.recalculate(subjectId); // A3: a fresh report may open a case
     logger.info({ reporterId, subjectId, reason: dto.reason }, 'user reported');
     return { reportId: report.id, already: false };
   }

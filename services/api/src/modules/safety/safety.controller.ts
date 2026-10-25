@@ -21,6 +21,7 @@ import {
 import { ZodValidationPipe } from '../../common/zod-validation.pipe';
 import { AuthGuard, CsrfGuard, CurrentUser } from '../identity/guards';
 import { SafetyService } from './safety.service';
+import { RiskScoringService } from './risk-scoring.service';
 import { reportUserSchema, type ReportUserDto } from './safety.dto';
 
 @Controller('users')
@@ -60,5 +61,16 @@ export class MeBlocksController {
   @Get()
   list(@CurrentUser() userId: string) {
     return this.safety.listBlocks(userId);
+  }
+}
+
+@Controller('me/risk')
+@UseGuards(AuthGuard)
+export class MeRiskController {
+  constructor(@Inject(RiskScoringService) private readonly risk: RiskScoringService) {}
+
+  @Get()
+  own(@CurrentUser() userId: string) {
+    return this.risk.getOwnRisk(userId);
   }
 }

@@ -19,6 +19,7 @@ import { randomUUID } from 'node:crypto';
 import sharp from 'sharp';
 import { createLogger } from '@saath/logger';
 import { PrismaService } from '../../prisma/prisma.service';
+import { RiskScoringService } from '../safety/risk-scoring.service';
 import type { AppConfig } from '../../config';
 import { APP_CONFIG } from '../identity/tokens';
 import type { ModerationProvider } from './moderation-provider';
@@ -45,6 +46,7 @@ export class PhotosService {
     @Inject(APP_CONFIG) private readonly config: AppConfig,
     @Inject(STORAGE_PROVIDER) private readonly storage: StorageProvider,
     @Inject(MODERATION_PROVIDER) private readonly moderation: ModerationProvider,
+    @Inject(RiskScoringService) private readonly risk: RiskScoringService,
   ) {}
 
   async requestUpload(userId: string, dto: RequestUploadDto) {
@@ -76,9 +78,7 @@ export class PhotosService {
     return {
       photoId: created.id,
       uploadUrl,
-      expiresAt: new Date(
-        Date.now() + this.config.PHOTOS_URL_TTL_SEC * 1000,
-      ).toISOString(),
+      expiresAt: new Date(Date.now() + this.config.PHOTOS_URL_TTL_SEC * 1000).toISOString(),
     };
   }
 
@@ -86,7 +86,11 @@ export class PhotosService {
     try {
       return await this.doComplete(userId, photoId);
     } catch (err) {
-      if (err instanceof BadRequestException || err instanceof ConflictException || err instanceof NotFoundException) {
+      if (
+        err instanceof BadRequestException ||
+        err instanceof ConflictException ||
+        err instanceof NotFoundException
+      ) {
         throw err;
       }
       logger.error(
@@ -140,6 +144,7 @@ export class PhotosService {
     );
     const url = this.storage.presignGet(photo.storageKey, this.config.PHOTOS_URL_TTL_SEC);
     logger.info({ userId, photoId }, 'photo approved');
+    void this.risk.recalculate(userId).catch(() => undefined); // A3 signal: pHash reuse
     return this.view(approved, url);
   }
 

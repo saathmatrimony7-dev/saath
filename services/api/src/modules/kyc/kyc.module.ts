@@ -3,6 +3,7 @@ import type { AppConfig } from '../../config';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { IdentityModule } from '../identity/identity.module';
 import { ConsentModule } from '../consent/consent.module';
+import { SafetyModule } from '../safety/safety.module';
 import { APP_CONFIG } from '../identity/tokens';
 import { IdfyKycProvider, MockKycProvider, type KycProvider } from './provider';
 import { KYC_PROVIDER_TOKEN } from './tokens';
@@ -12,7 +13,7 @@ import { KycWebhookController } from './kyc-webhook.controller';
 import { VerificationController } from './verification.controller';
 
 @Module({
-  imports: [IdentityModule, PrismaModule, ConsentModule],
+  imports: [IdentityModule, PrismaModule, ConsentModule, SafetyModule],
   controllers: [MeKycController, KycWebhookController, VerificationController],
   providers: [
     {

@@ -14,6 +14,7 @@ import { ConflictException, ForbiddenException, Inject, Injectable } from '@nest
 import { createLogger } from '@saath/logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConsentService } from '../consent/consent.service';
+import { RiskScoringService } from '../safety/risk-scoring.service';
 import { KYC_PROVIDER_TOKEN } from './tokens';
 import type { KycProvider } from './provider';
 import type { KycWebhookDto, StartKycDto } from './kyc.dto';
@@ -37,6 +38,7 @@ export class KycService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(ConsentService) private readonly consents: ConsentService,
     @Inject(KYC_PROVIDER_TOKEN) private readonly provider: KycProvider,
+    @Inject(RiskScoringService) private readonly risk: RiskScoringService,
   ) {}
 
   /** Starts a check. Requires the kyc consent purpose and an active account. */
@@ -134,6 +136,7 @@ export class KycService {
     } else if (underage) {
       await this.blockUnderage(check.userId);
     }
+    await this.risk.recalculate(check.userId); // A3: KYC outcome feeds the score
     logger.info({ userId: check.userId, status, type: check.type }, 'kyc result processed');
   }
 
