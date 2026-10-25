@@ -70,6 +70,16 @@ const configSchema = z.object({
   ONBOARDING_MAX_TURNS: z.coerce.number().int().positive().default(25),
   AGENTS_SERVICE_URL: z.string().url().optional(),
 
+  // WhatsApp channel (P1-09, DESIGN.md §12): ChannelAdapter + signature-verified
+  // webhook driving the SAME A1 session engine as the web app. Mock adapter in
+  // dev/test; Meta Cloud API wiring is config-only for now.
+  WHATSAPP_PROVIDER: z.enum(['mock', 'meta']).default('mock'),
+  WHATSAPP_WEBHOOK_SECRET: z.string().min(16).default('dev-whatsapp-webhook-secret'),
+  WHATSAPP_VERIFY_TOKEN: z.string().default('dev-whatsapp-verify-token'),
+  WHATSAPP_OPTOUT_KEYWORDS: z.string().default('stop'),
+  WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
+  WHATSAPP_ACCESS_TOKEN: z.string().optional(),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
@@ -99,6 +109,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     if (cfg.STORAGE_PROVIDER === 'mock') violations.push('STORAGE_PROVIDER=mock');
     if (cfg.ONBOARDING_ENGINE_TRANSPORT === 'mock') {
       violations.push('ONBOARDING_ENGINE_TRANSPORT=mock');
+    }
+    if (cfg.WHATSAPP_PROVIDER === 'mock') violations.push('WHATSAPP_PROVIDER=mock');
+    if (cfg.WHATSAPP_WEBHOOK_SECRET === 'dev-whatsapp-webhook-secret') {
+      violations.push('WHATSAPP_WEBHOOK_SECRET is the development default');
     }
     if (!cfg.COOKIE_SECURE) violations.push('COOKIE_SECURE=false');
     if (violations.length > 0) {

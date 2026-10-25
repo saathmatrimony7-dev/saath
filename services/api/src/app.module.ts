@@ -9,6 +9,7 @@ import { ConsentModule } from './modules/consent/consent.module';
 import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
+import { WhatsAppModule } from './modules/channels/whatsapp/whatsapp.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module';
     ProfilesModule,
     PhotosModule,
     OnboardingModule,
+    WhatsAppModule,
   ],
   controllers: [HealthController, MeController],
 })

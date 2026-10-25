@@ -12,6 +12,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Post,
@@ -39,7 +40,10 @@ export class OnboardingController {
   @Post('sessions')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(CsrfGuard)
-  start(@CurrentUser() userId: string, @Body(new ZodValidationPipe(createSessionSchema)) body: CreateSessionDto) {
+  start(
+    @CurrentUser() userId: string,
+    @Body(new ZodValidationPipe(createSessionSchema)) body: CreateSessionDto,
+  ) {
     return this.onboarding.start(userId, body);
   }
 
@@ -68,8 +72,19 @@ export class OnboardingController {
   @Post('confirm')
   @HttpCode(HttpStatus.OK)
   @UseGuards(CsrfGuard)
-  confirm(@CurrentUser() userId: string, @Body(new ZodValidationPipe(confirmSessionSchema)) body: ConfirmSessionDto) {
+  confirm(
+    @CurrentUser() userId: string,
+    @Body(new ZodValidationPipe(confirmSessionSchema)) body: ConfirmSessionDto,
+  ) {
     return this.onboarding.confirm(userId, body);
+  }
+
+  @Get('sessions')
+  latest(@CurrentUser() userId: string) {
+    return this.onboarding.latest(userId).then((session) => {
+      if (!session) throw new NotFoundException('no onboarding session');
+      return { sessionId: session.id, status: session.status };
+    });
   }
 
   @Get('sessions/:id')

@@ -15,6 +15,8 @@ const baseEnv = {
   STORAGE_PROVIDER: 's3',
   ONBOARDING_ENGINE_TRANSPORT: 'http',
   AGENTS_SERVICE_URL: 'http://127.0.0.1:8000',
+  WHATSAPP_PROVIDER: 'meta',
+  WHATSAPP_WEBHOOK_SECRET: 'prod-webhook-secret-0123456789',
   COOKIE_SECURE: 'true',
 } as NodeJS.ProcessEnv;
 
@@ -44,8 +46,20 @@ describe('production config guardrails', () => {
   });
 
   it('refuses ONBOARDING_ENGINE_TRANSPORT=mock in production', () => {
-    expect(() =>
-      loadConfig({ ...baseEnv, ONBOARDING_ENGINE_TRANSPORT: 'mock' }),
-    ).toThrow(/ONBOARDING_ENGINE_TRANSPORT=mock/);
+    expect(() => loadConfig({ ...baseEnv, ONBOARDING_ENGINE_TRANSPORT: 'mock' })).toThrow(
+      /ONBOARDING_ENGINE_TRANSPORT=mock/,
+    );
+  });
+
+  it('refuses WHATSAPP_PROVIDER=mock in production', () => {
+    expect(() => loadConfig({ ...baseEnv, WHATSAPP_PROVIDER: 'mock' })).toThrow(
+      /WHATSAPP_PROVIDER=mock/,
+    );
+  });
+
+  it('refuses the development webhook secret in production', () => {
+    expect(() => loadConfig({ ...baseEnv, WHATSAPP_WEBHOOK_SECRET: undefined })).toThrow(
+      /WHATSAPP_WEBHOOK_SECRET/,
+    );
   });
 });

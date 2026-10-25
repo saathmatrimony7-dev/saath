@@ -64,6 +64,6 @@ import { APP_CONFIG, RATE_LIMITER, SMS_PROVIDER } from './tokens';
       inject: [TokenService],
     },
   ],
-  exports: [AuthGuard, TokenService, SMS_PROVIDER, APP_CONFIG],
+  exports: [AuthGuard, TokenService, SMS_PROVIDER, APP_CONFIG, FieldCrypto],
 })
 export class IdentityModule {}

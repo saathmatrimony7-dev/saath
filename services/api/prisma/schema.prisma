@@ -319,3 +319,13 @@ model AttributeDefinition {
 
   @@map("attribute_definitions")
 }
+
+/// Processed webhook event ids (P1-09, DESIGN.md §12: idempotent event ids).
+/// Operational data (vendor ids only, no user content); service-only, no RLS.
+model WebhookEvent {
+  id        String   @id
+  source    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("webhook_events")
+}

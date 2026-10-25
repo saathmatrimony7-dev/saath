@@ -20,5 +20,6 @@ import { ONBOARDING_ENGINE } from './tokens';
     },
     OnboardingService,
   ],
+  exports: [OnboardingService],
 })
 export class OnboardingModule {}

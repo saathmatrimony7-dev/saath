@@ -10,12 +10,16 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from '../../src/app.module';
 import type { MockSmsProvider } from '../../src/modules/identity/sms/sms-provider';
 import { SMS_PROVIDER } from '../../src/modules/identity/tokens';
+import type { MockWhatsAppAdapter } from '../../src/modules/channels/whatsapp/adapter';
+import { WHATSAPP_ADAPTER } from '../../src/modules/channels/whatsapp/tokens';
+import { stashRawBody } from '../../src/common/raw-body';
 import { getTestDbUrls } from './test-db';
 
 export interface TestApp {
   app: INestApplication;
   baseUrl: string;
   mockSms: MockSmsProvider;
+  mockWhatsApp: MockWhatsAppAdapter;
 }
 
 export async function bootTestApp(): Promise<TestApp> {
@@ -33,6 +37,7 @@ export async function bootTestApp(): Promise<TestApp> {
   process.env.OTP_PROVIDER = 'mock';
   process.env.OTP_IP_REQUESTS_PER_HOUR = '100000'; // tests share 127.0.0.1
   process.env.INTERNAL_SERVICE_TOKEN ??= 'test-internal-token-0123456789';
+  process.env.WHATSAPP_WEBHOOK_SECRET ??= 'test-whatsapp-webhook-secret-0123456789';
   // Point Prisma at the ephemeral test DB (app_login — RLS enforced).
   process.env.DATABASE_URL = getTestDbUrls().appUrl;
 
@@ -40,6 +45,7 @@ export async function bootTestApp(): Promise<TestApp> {
   const app = moduleRef.createNestApplication({ logger: false });
   app.use(cookieParser());
   app.setGlobalPrefix('v1');
+  stashRawBody(app); // raw body for webhook signatures (P1-09), same as main.ts
   await app.listen(0, '127.0.0.1');
 
   const address = app.getHttpServer().address() as { port: number };
@@ -47,6 +53,7 @@ export async function bootTestApp(): Promise<TestApp> {
     app,
     baseUrl: `http://127.0.0.1:${address.port}`,
     mockSms: app.get<MockSmsProvider>(SMS_PROVIDER),
+    mockWhatsApp: app.get<MockWhatsAppAdapter>(WHATSAPP_ADAPTER),
   };
 }
 

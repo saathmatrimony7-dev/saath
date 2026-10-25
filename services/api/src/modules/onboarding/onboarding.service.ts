@@ -135,6 +135,13 @@ export class OnboardingService {
     return { confirmed: true, already: false };
   }
 
+  /** Latest session for the user (any status) — used by channels (P1-09). */
+  async latest(userId: string) {
+    return this.prisma.withUser(userId, (tx) =>
+      tx.onboardingSession.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+    );
+  }
+
   async transcript(userId: string, sessionId: string) {
     const session = await this.prisma.withUser(userId, (tx) =>
       tx.onboardingSession.findUnique({ where: { id: sessionId } }),

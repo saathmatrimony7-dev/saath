@@ -23,6 +23,7 @@ import cookieParser from 'cookie-parser';
 import EmbeddedPostgres from 'embedded-postgres';
 
 import { AppModule } from '../src/app.module';
+import { stashRawBody } from '../src/common/raw-body';
 import type { MockSmsProvider } from '../src/modules/identity/sms/sms-provider';
 import { SMS_PROVIDER } from '../src/modules/identity/tokens';
 
@@ -90,12 +91,14 @@ async function main() {
   process.env.OTP_IP_REQUESTS_PER_HOUR = '100000';
   process.env.ONBOARDING_MAX_TURNS = process.env.ONBOARDING_MAX_TURNS ?? '5';
   process.env.INTERNAL_SERVICE_TOKEN = 'e2e-internal-token-0123456789';
+  process.env.WHATSAPP_WEBHOOK_SECRET ??= 'test-whatsapp-webhook-secret-0123456789';
   process.env.DATABASE_URL = `postgresql://app_login:app_login_test_password@127.0.0.1:${pgPort}/postgres`;
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
   const app = moduleRef.createNestApplication({ logger: ['error', 'warn'] });
   app.use(cookieParser());
   app.setGlobalPrefix('v1');
+  stashRawBody(app);
 
   // Test-only OTP read-back for the browser e2e (mock provider, mock codes).
   const mockSms = app.get<MockSmsProvider>(SMS_PROVIDER);
