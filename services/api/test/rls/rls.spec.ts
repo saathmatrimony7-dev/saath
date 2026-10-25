@@ -1,5 +1,7 @@
 /**
  * RLS integration tests — P0 exit criterion: "RLS tests prove cross-user reads fail".
+ * P1 extends the proofs to the new user-data tables (consents, profiles,
+ * photos, onboarding sessions/messages) and the append-only consent grant.
  *
  * Runs against the ephemeral embedded Postgres from test/global-setup.ts.
  * Tables have FORCE ROW LEVEL SECURITY, so these prove the database itself
@@ -112,5 +114,104 @@ describe('cross-user isolation', () => {
         SELECT count(*)::int AS count FROM sessions WHERE user_id = ${userB}::uuid`;
       expect(Number(rows[0]?.count)).toBe(0);
     });
+  });
+});
+
+describe('P1 user-data tables — consents, profiles, photos, onboarding', () => {
+  let sessionA = '';
+  let sessionB = '';
+
+  beforeAll(async () => {
+    await prisma.withUser(userA, async (tx) => {
+      await tx.profile.create({ data: { userId: userA, displayName: 'A' } });
+      await tx.consent.create({
+        data: { userId: userA, purpose: 'whatsapp', granted: true, noticeVersion: 'rls-test' },
+      });
+      const s = await tx.onboardingSession.create({ data: { userId: userA, locale: 'en' } });
+      sessionA = s.id;
+      await tx.onboardingMessage.create({
+        data: { sessionId: s.id, role: 'assistant', content: '[AI] hi', seq: 0 },
+      });
+      await tx.photo.create({
+        data: { userId: userA, storageKey: 'rls-a', contentType: 'image/jpeg' },
+      });
+    });
+    await prisma.withUser(userB, async (tx) => {
+      await tx.profile.create({ data: { userId: userB, displayName: 'B' } });
+      await tx.consent.create({
+        data: { userId: userB, purpose: 'whatsapp', granted: false, noticeVersion: 'rls-test' },
+      });
+      const s = await tx.onboardingSession.create({ data: { userId: userB, locale: 'hi' } });
+      sessionB = s.id;
+      await tx.onboardingMessage.create({
+        data: { sessionId: s.id, role: 'assistant', content: '[AI] नमस्ते', seq: 0 },
+      });
+      await tx.photo.create({
+        data: { userId: userB, storageKey: 'rls-b', contentType: 'image/jpeg' },
+      });
+    });
+  });
+
+  it('owner reads only their own profile, consents, onboarding and photos', async () => {
+    await prisma.withUser(userA, async (tx) => {
+      expect(await tx.profile.findMany()).toHaveLength(1);
+      expect(await tx.consent.findMany()).toHaveLength(1);
+      const sessions = await tx.onboardingSession.findMany();
+      expect(sessions).toHaveLength(1);
+      expect(sessions[0]?.id).toBe(sessionA);
+      const messages = await tx.onboardingMessage.findMany();
+      expect(messages).toHaveLength(1);
+      expect(messages[0]?.sessionId).toBe(sessionA);
+      expect(await tx.photo.findMany()).toHaveLength(1);
+    });
+  });
+
+  it('cross-user reads fail: primary key and raw SQL', async () => {
+    await prisma.withUser(userA, async (tx) => {
+      expect(await tx.profile.findUnique({ where: { userId: userB } })).toBeNull();
+      expect(await tx.consent.findFirst({ where: { userId: userB } })).toBeNull();
+      expect(await tx.onboardingSession.findUnique({ where: { id: sessionB } })).toBeNull();
+      expect(await tx.photo.findFirst({ where: { storageKey: 'rls-b' } })).toBeNull();
+      const counts = await tx.$queryRaw<{ count: number }[]>`
+        SELECT count(*)::int AS count FROM onboarding_sessions WHERE user_id = ${userB}::uuid`;
+      expect(Number(counts[0]?.count)).toBe(0);
+    });
+  });
+
+  it('cross-user writes fail: update invisible rows and insert into foreign sessions', async () => {
+    await expect(
+      prisma.withUser(userA, (tx) =>
+        tx.onboardingSession.update({ where: { id: sessionB }, data: { status: 'confirmed' } }),
+      ),
+    ).rejects.toThrow();
+    await expect(
+      prisma.withUser(userA, (tx) =>
+        tx.onboardingMessage.create({
+          data: { sessionId: sessionB, role: 'assistant', content: '[AI] injected', seq: 1 },
+        }),
+      ),
+    ).rejects.toThrow();
+    await expect(
+      prisma.withUser(userA, (tx) => tx.photo.update({ where: { storageKey: 'rls-b' }, data: {} })),
+    ).rejects.toThrow();
+  });
+
+  it('consent ledger is append-only: no UPDATE/DELETE grants on consents', async () => {
+    await prisma.withUser(userA, async (tx) => {
+      const row = await tx.consent.findFirstOrThrow({ where: { userId: userA } });
+      await expect(
+        tx.consent.update({ where: { id: row.id }, data: { granted: false } }),
+      ).rejects.toThrow();
+      await expect(tx.consent.delete({ where: { id: row.id } })).rejects.toThrow();
+    });
+  });
+
+  it('webhook_events is operational: insert/select allowed, no UPDATE grant', async () => {
+    // No RLS by design (vendor ids only, no user data — ADR-0001 scope).
+    await prisma.webhookEvent.create({ data: { id: 'rls-wa-1', source: 'whatsapp' } });
+    expect(await prisma.webhookEvent.findUnique({ where: { id: 'rls-wa-1' } })).not.toBeNull();
+    await expect(
+      prisma.webhookEvent.update({ where: { id: 'rls-wa-1' }, data: { source: 'tampered' } }),
+    ).rejects.toThrow();
   });
 });
