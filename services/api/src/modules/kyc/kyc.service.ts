@@ -177,4 +177,37 @@ export class KycService {
     );
     return profile?.verificationTier ?? 0;
   }
+
+  /**
+   * P2 exit criterion 1 ("unverified users cannot message"):
+   * the single precondition the P4 messaging path must call before delivering
+   * any user-to-user message. Throws ForbiddenException with machine-readable
+   * reasons; `verificationStatus` is the same check in reporting form for the
+   * `GET /v1/me/verification` UI.
+   */
+  async verificationStatus(userId: string) {
+    const user = await this.prisma.withUser(userId, (tx) =>
+      tx.user.findUnique({ where: { id: userId } }),
+    );
+    const tier = await this.currentTier(userId);
+    const reasons: string[] = [];
+    if (!user || user.status !== 'active') reasons.push('account_blocked');
+    if (tier < 1) reasons.push('verification_required');
+    if (!user?.ageVerified) reasons.push('age_unverified');
+    return {
+      status: user?.status ?? 'unknown',
+      tier,
+      ageVerified: user?.ageVerified ?? false,
+      canContact: reasons.length === 0,
+      reasons,
+    };
+  }
+
+  /** Hard gate for user-to-user messaging (call before delivering a message). */
+  async assertCanContact(userId: string): Promise<void> {
+    const v = await this.verificationStatus(userId);
+    if (!v.canContact) {
+      throw new ForbiddenException({ message: 'contact is not permitted', reasons: v.reasons });
+    }
+  }
 }

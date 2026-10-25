@@ -9,10 +9,11 @@ import { KYC_PROVIDER_TOKEN } from './tokens';
 import { KycService } from './kyc.service';
 import { MeKycController } from './kyc.controller';
 import { KycWebhookController } from './kyc-webhook.controller';
+import { VerificationController } from './verification.controller';
 
 @Module({
   imports: [IdentityModule, PrismaModule, ConsentModule],
-  controllers: [MeKycController, KycWebhookController],
+  controllers: [MeKycController, KycWebhookController, VerificationController],
   providers: [
     {
       provide: KYC_PROVIDER_TOKEN,
