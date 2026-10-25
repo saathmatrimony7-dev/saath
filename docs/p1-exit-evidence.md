@@ -1,6 +1,6 @@
 # P1 exit-criteria evidence
 
-Generated: 2026-10-25T03:59:29.856Z (local run; CI re-runs all checks on every PR)
+Generated: 2026-10-25T04:11:14.019Z (local run; CI re-runs all checks on every PR)
 
 | Check | Result |
 |-------|--------|
@@ -23,23 +23,23 @@ Generated: 2026-10-25T03:59:29.856Z (local run; CI re-runs all checks on every P
 ### pnpm test (API: RLS incl. P1 tables, authz matrix, onboarding en/hi, whatsapp channel) (exit 0)
 
 ```
-services/api test:  [32m✓[39m test/auth/config-guardrails.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+services/api test:  [32m✓[39m test/auth/config-guardrails.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 23[2mms[22m[39m
 services/api test: [2m Test Files [22m [1m[32m12 passed[39m[22m[90m (12)[39m
 services/api test: [2m      Tests [22m [1m[32m115 passed[39m[22m[90m (115)[39m
-services/api test: [2m   Start at [22m 09:27:30
-services/api test: [2m   Duration [22m 32.26s[2m (transform 905ms, setup 0ms, collect 12.41s, tests 9.16s, environment 5ms, prepare 1.47s)[22m
+services/api test: [2m   Start at [22m 09:39:41
+services/api test: [2m   Duration [22m 31.79s[2m (transform 991ms, setup 0ms, collect 12.20s, tests 8.97s, environment 4ms, prepare 1.52s)[22m
 services/api test: Done
 ```
 
 ### packages/logger redaction tests (exit 0)
 
 ```
- [32m✓[39m test/redact.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 117[2mms[22m[39m
+ [32m✓[39m test/redact.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 114[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
 [2m      Tests [22m [1m[32m9 passed[39m[22m[90m (9)[39m
-[2m   Start at [22m 09:28:04
-[2m   Duration [22m 966ms[2m (transform 177ms, setup 0ms, collect 239ms, tests 117ms, environment 0ms, prepare 184ms)[22m
+[2m   Start at [22m 09:40:14
+[2m   Duration [22m 826ms[2m (transform 148ms, setup 0ms, collect 202ms, tests 114ms, environment 0ms, prepare 158ms)[22m
 ```
 
 ### i18n key parity (en/hi/ta) (exit 0)
@@ -69,10 +69,10 @@ tests\test_matching_smoke.py .                                           [100%]
 ```
 Running 2 tests using 1 worker
 
-  ✓  1 e2e\onboarding.en.spec.ts:5:5 › sign up and complete onboarding in English (18.0s)
+  ✓  1 e2e\onboarding.en.spec.ts:5:5 › sign up and complete onboarding in English (12.8s)
   ✓  2 e2e\onboarding.hi.spec.ts:5:5 › sign up and complete onboarding in Hindi (4.5s)
 
-  2 passed (50.5s)
+  2 passed (30.6s)
 ```
 
 ### pnpm lint (exit 0)
@@ -115,9 +115,9 @@ canary detected, commit blocked (exit nonzero)
     ○ ░
     ░    gitleaks
 
-[90m9:29AM[0m [32mINF[0m 28 commits scanned.
-[90m9:29AM[0m [32mINF[0m scan completed in 304ms
-[90m9:29AM[0m [32mINF[0m no leaks found
+[90m9:41AM[0m [32mINF[0m 30 commits scanned.
+[90m9:41AM[0m [32mINF[0m scan completed in 250ms
+[90m9:41AM[0m [32mINF[0m no leaks found
 ```
 
 ### terraform fmt -check (exit 0)
