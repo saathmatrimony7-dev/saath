@@ -220,3 +220,56 @@ describe('authorisation matrix — P1 endpoints', () => {
     expect(res.status).toBe(403);
   });
 });
+
+describe('authorisation matrix — P2 endpoints', () => {
+  it('KYC: anonymous 401, no-CSRF 403 on start, consent-gated 403', async () => {
+    const anon = new TestClient(t.baseUrl);
+    expect((await anon.post('/v1/me/kyc', { type: 'id' })).status).toBe(401);
+    const owner = new TestClient(t.baseUrl);
+    await signup(owner, '+919000000020');
+    const noCsrf = await owner.req('POST', '/v1/me/kyc', { type: 'id' });
+    expect(noCsrf.status).toBe(403);
+    const noConsent = await owner.post('/v1/me/kyc', { type: 'id' }, owner.csrfHeaders());
+    expect(noConsent.status).toBe(403);
+    expect((await anon.get('/v1/me/kyc')).status).toBe(401);
+    expect((await owner.get('/v1/me/verification')).status).toBe(200);
+    expect((await anon.get('/v1/me/verification')).status).toBe(401);
+  });
+
+  it('POST /v1/hooks/kyc: invalid signature 401', async () => {
+    const anon = new TestClient(t.baseUrl);
+    const body = { event_id: 'x', provider_ref: 'y', result: 'pass' };
+    const res = await anon.post('/v1/hooks/kyc', body, { 'x-hub-signature-256': 'sha256=bad' });
+    expect(res.status).toBe(401);
+  });
+
+  it('safety: anonymous 401, no-CSRF 403, self report/block 400', async () => {
+    const a = new TestClient(t.baseUrl);
+    const b = new TestClient(t.baseUrl);
+    const idA = await signup(a, '+919000000021');
+    const idB = await signup(b, '+919000000022');
+    const anon = new TestClient(t.baseUrl);
+    expect((await anon.post(`/v1/users/${idB}/report`, { reason: 'scam' })).status).toBe(401);
+    expect((await anon.put(`/v1/users/${idB}/block`)).status).toBe(401);
+    expect((await anon.get('/v1/me/blocks')).status).toBe(401);
+    const noCsrf = await a.req('POST', `/v1/users/${idB}/report`, { reason: 'scam' });
+    expect(noCsrf.status).toBe(403);
+    expect(
+      (await a.post(`/v1/users/${idA}/report`, { reason: 'other' }, a.csrfHeaders())).status,
+    ).toBe(400);
+    expect((await a.put(`/v1/users/${idA}/block`, undefined, a.csrfHeaders())).status).toBe(400);
+    expect((await a.get('/v1/me/risk')).status).toBe(200);
+  });
+
+  it('admin: member 403 everywhere; member JIT self-elevation 403', async () => {
+    const member = new TestClient(t.baseUrl);
+    await signup(member, '+919000000023');
+    expect((await member.get('/v1/admin/users')).status).toBe(403);
+    expect((await member.get('/v1/admin/cases')).status).toBe(403);
+    expect((await member.get('/v1/admin/audit')).status).toBe(403);
+    expect(
+      (await member.post('/v1/admin/jit/elevate', { reason: 'not staff' }, member.csrfHeaders()))
+        .status,
+    ).toBe(403);
+  });
+});

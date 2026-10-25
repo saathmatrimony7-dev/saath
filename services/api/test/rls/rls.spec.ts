@@ -215,3 +215,127 @@ describe('P1 user-data tables — consents, profiles, photos, onboarding', () =>
     ).rejects.toThrow();
   });
 });
+
+describe('P2 tables — kyc, safety, risk, admin audit', () => {
+  let sessionA = '';
+  let caseId = '';
+
+  beforeAll(async () => {
+    await prisma.withUser(userA, async (tx) => {
+      const kyc = await tx.kycCheck.create({
+        data: {
+          userId: userA,
+          provider: 'mock',
+          providerRef: 'rls-kyc-a',
+          type: 'id_liveness',
+          status: 'pass',
+          age: 28,
+        },
+      });
+      void kyc;
+      await tx.block.create({ data: { blockerId: userA, blockedId: userB } });
+      await tx.userReport.create({
+        data: { reporterId: userA, subjectId: userB, reason: 'scam' },
+      });
+      const s = await tx.onboardingSession.create({ data: { userId: userA, locale: 'en' } });
+      sessionA = s.id;
+    });
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'risk', true)`;
+      await tx.riskScore.create({ data: { userId: userA, score: 30, signals: [] } });
+      const c = await tx.safetyCase.create({
+        data: { subjectId: userB, source: 'risk', severity: 'high' },
+      });
+      caseId = c.id;
+      await tx.adminAudit.create({
+        data: { actorId: userA, action: 'admin.view.users', subjectKind: 'user' },
+      });
+      await tx.adminElevation.create({
+        data: {
+          userId: userA,
+          grantedBy: userA,
+          reason: 'rls test',
+          expiresAt: new Date(Date.now() + 60_000),
+        },
+      });
+    });
+  });
+
+  it('owner reads own kyc_checks and blocks; cross-user denied', async () => {
+    await prisma.withUser(userA, async (tx) => {
+      expect(await tx.kycCheck.findMany()).toHaveLength(1);
+      expect(await tx.block.findMany()).toHaveLength(1);
+      expect(await tx.userReport.findMany()).toHaveLength(1); // reporter view
+      expect(await tx.riskScore.findUnique({ where: { userId: userA } })).not.toBeNull();
+      expect(await tx.adminElevation.findMany()).toHaveLength(1); // own elevation
+    });
+    await prisma.withUser(userA, async (tx) => {
+      expect(await tx.kycCheck.findFirst({ where: { userId: userB } })).toBeNull();
+      const counts = await tx.$queryRaw<{ count: number }[]>`
+        SELECT count(*)::int AS count FROM kyc_checks WHERE user_id = ${userB}::uuid`;
+      expect(Number(counts[0]?.count)).toBe(0);
+    });
+  });
+
+  it('safety_cases and admin_audit are service-context only (deny by default)', async () => {
+    await prisma.withUser(userA, async (tx) => {
+      expect(await tx.safetyCase.findMany()).toHaveLength(0);
+      expect(await tx.adminAudit.findMany()).toHaveLength(0);
+    });
+    // Service context sees what it wrote.
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'admin', true)`;
+      expect(await tx.safetyCase.findMany()).toHaveLength(1);
+      expect(await tx.adminAudit.findMany()).toHaveLength(1);
+    });
+  });
+
+  it('reports and admin_audit are append-only (no UPDATE/DELETE grants)', async () => {
+    await prisma.withUser(userA, async (tx) => {
+      const report = await tx.userReport.findFirstOrThrow();
+      await expect(
+        tx.userReport.update({ where: { id: report.id }, data: { status: 'resolved' } }),
+      ).rejects.toThrow();
+      await expect(tx.userReport.delete({ where: { id: report.id } })).rejects.toThrow();
+    });
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'admin', true)`;
+      const row = await tx.adminAudit.findFirstOrThrow();
+      await expect(tx.adminAudit.delete({ where: { id: row.id } })).rejects.toThrow();
+    });
+  });
+
+  it('blocked-pair write enforcement: user A cannot block/report as B', async () => {
+    await expect(
+      prisma.withUser(userA, (tx) =>
+        tx.block.create({ data: { blockerId: userB, blockedId: userA } }),
+      ),
+    ).rejects.toThrow();
+    await expect(
+      prisma.withUser(userA, (tx) =>
+        tx.userReport.create({ data: { reporterId: userB, subjectId: userA, reason: 'scam' } }),
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('admin context cannot touch foreign tables it has no claim on', async () => {
+    // 'admin' service context has NO kyc_checks policy grant (verification|risk only).
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'admin', true)`;
+      const rows = await tx.$queryRaw<{ count: number }[]>`
+        SELECT count(*)::int AS count FROM kyc_checks`;
+      expect(Number(rows[0]?.count)).toBe(0);
+    });
+  });
+
+  it('cross-user onboarding isolation still holds (P1 regression)', async () => {
+    await prisma.withUser(userB, async (tx) => {
+      expect(await tx.onboardingSession.findUnique({ where: { id: sessionA } })).toBeNull();
+    });
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'risk', true)`;
+      const c = await tx.safetyCase.findUnique({ where: { id: caseId } });
+      expect(c?.subjectId).toBe(userB);
+    });
+  });
+});

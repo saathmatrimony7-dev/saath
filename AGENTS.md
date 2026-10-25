@@ -51,6 +51,7 @@ The files in `.claude/agents/` describe specialist roles: architect, backend-eng
 - `make security` → semgrep + gitleaks + trivy + dependency audit
 - `node scripts/p0-exit-check.mjs` → P0 exit-criteria evidence runner
 - `node scripts/p1-exit-check.mjs` → P1 exit-criteria evidence runner
+- `node scripts/p2-exit-check.mjs` → P2 exit-criteria evidence runner
 - `pnpm check:llm-isolation` → proves the Anthropic SDK is confined to the LLM Gateway
 - `pnpm test:e2e` → Playwright web e2e (sign up + onboarding in en/hi; boots the Core API e2e server with embedded PG + mock OTP/engine)
 - Local DB without Docker: `cd services/api && pnpm db:dev` (embedded Postgres 16); with Docker: `make db-up`
