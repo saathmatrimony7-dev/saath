@@ -37,6 +37,7 @@ model User {
   disclosurePolicy DisclosurePolicy?
   photos Photo[]
   onboardingSessions OnboardingSession[]
+  kycChecks KycCheck[]
 
   @@map("users")
 }
@@ -328,4 +329,29 @@ model WebhookEvent {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("webhook_events")
+}
+
+/// KYC orchestration (P2-01, DESIGN.md A6/A10.4). Raw documents are NEVER
+/// stored — only the result, provider reference, score and a masked ID.
+/// Tier source of truth: profile.verification_tier (0 none / 1 ID / 2 +liveness
+/// / 3 +employment) + users.age_verified / birth_year.
+model KycCheck {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  provider      String
+  providerRef   String   @map("provider_ref")
+  type          String // 'id' | 'id_liveness' | 'employment'
+  status        String   @default("pending") // pending | pass | fail | error
+  score         Float?
+  age           Int?     @db.SmallInt // provider age check (never exact DOB)
+  nameMatch     Boolean? @map("name_match")
+  maskedId      String?  @map("masked_id")
+  failureReason String?  @map("failure_reason")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([providerRef])
+  @@map("kyc_checks")
 }

@@ -38,6 +38,7 @@ export async function bootTestApp(): Promise<TestApp> {
   process.env.OTP_IP_REQUESTS_PER_HOUR = '100000'; // tests share 127.0.0.1
   process.env.INTERNAL_SERVICE_TOKEN ??= 'test-internal-token-0123456789';
   process.env.WHATSAPP_WEBHOOK_SECRET ??= 'test-whatsapp-webhook-secret-0123456789';
+  process.env.KYC_WEBHOOK_SECRET ??= 'test-kyc-webhook-secret-0123456789';
   // Point Prisma at the ephemeral test DB (app_login — RLS enforced).
   process.env.DATABASE_URL = getTestDbUrls().appUrl;
 

@@ -80,6 +80,13 @@ const configSchema = z.object({
   WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
   WHATSAPP_ACCESS_TOKEN: z.string().optional(),
 
+  // KYC (P2-01, DESIGN.md A10.4): provider behind an interface; mock in dev.
+  // Raw KYC documents are never stored — results arrive via signed webhook.
+  KYC_PROVIDER: z.enum(['mock', 'idfy']).default('mock'),
+  KYC_WEBHOOK_SECRET: z.string().min(16).default('dev-kyc-webhook-secret'),
+  IDFY_ACCOUNT_ID: z.string().optional(),
+  IDFY_API_KEY: z.string().optional(),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
@@ -113,6 +120,10 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     if (cfg.WHATSAPP_PROVIDER === 'mock') violations.push('WHATSAPP_PROVIDER=mock');
     if (cfg.WHATSAPP_WEBHOOK_SECRET === 'dev-whatsapp-webhook-secret') {
       violations.push('WHATSAPP_WEBHOOK_SECRET is the development default');
+    }
+    if (cfg.KYC_PROVIDER === 'mock') violations.push('KYC_PROVIDER=mock');
+    if (cfg.KYC_WEBHOOK_SECRET === 'dev-kyc-webhook-secret') {
+      violations.push('KYC_WEBHOOK_SECRET is the development default');
     }
     if (!cfg.COOKIE_SECURE) violations.push('COOKIE_SECURE=false');
     if (violations.length > 0) {

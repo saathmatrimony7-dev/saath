@@ -17,6 +17,8 @@ const baseEnv = {
   AGENTS_SERVICE_URL: 'http://127.0.0.1:8000',
   WHATSAPP_PROVIDER: 'meta',
   WHATSAPP_WEBHOOK_SECRET: 'prod-webhook-secret-0123456789',
+  KYC_PROVIDER: 'idfy',
+  KYC_WEBHOOK_SECRET: 'prod-kyc-webhook-secret-0123456789',
   COOKIE_SECURE: 'true',
 } as NodeJS.ProcessEnv;
 
@@ -60,6 +62,16 @@ describe('production config guardrails', () => {
   it('refuses the development webhook secret in production', () => {
     expect(() => loadConfig({ ...baseEnv, WHATSAPP_WEBHOOK_SECRET: undefined })).toThrow(
       /WHATSAPP_WEBHOOK_SECRET/,
+    );
+  });
+
+  it('refuses KYC_PROVIDER=mock in production', () => {
+    expect(() => loadConfig({ ...baseEnv, KYC_PROVIDER: 'mock' })).toThrow(/KYC_PROVIDER=mock/);
+  });
+
+  it('refuses the development KYC webhook secret in production', () => {
+    expect(() => loadConfig({ ...baseEnv, KYC_WEBHOOK_SECRET: undefined })).toThrow(
+      /KYC_WEBHOOK_SECRET/,
     );
   });
 });

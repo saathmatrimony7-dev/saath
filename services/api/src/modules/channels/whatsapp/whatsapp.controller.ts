@@ -22,7 +22,7 @@ import type { Request } from 'express';
 import type { AppConfig } from '../../../config';
 import { ZodValidationPipe } from '../../../common/zod-validation.pipe';
 import { APP_CONFIG } from '../../identity/tokens';
-import { verifyWhatsAppSignature } from './signature';
+import { verifyWebhookSignature } from '../../../common/hmac-signature';
 import { whatsappWebhookSchema, type WhatsAppWebhookDto } from './whatsapp.dto';
 import { WhatsAppService } from './whatsapp.service';
 
@@ -58,7 +58,7 @@ export class WhatsAppController {
     if (
       !rawBody ||
       !signature ||
-      !verifyWhatsAppSignature(this.config.WHATSAPP_WEBHOOK_SECRET, rawBody, signature)
+      !verifyWebhookSignature(this.config.WHATSAPP_WEBHOOK_SECRET, rawBody, signature)
     ) {
       throw new UnauthorizedException('invalid webhook signature');
     }

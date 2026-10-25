@@ -17,7 +17,7 @@ export class MeController {
     const user = await this.prisma.withUser(userId, (tx) =>
       tx.user.findUniqueOrThrow({
         where: { id: userId },
-        select: { id: true, locale: true, status: true, ageVerified: true },
+        select: { id: true, locale: true, status: true, ageVerified: true, birthYear: true },
       }),
     );
     return user;

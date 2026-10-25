@@ -10,6 +10,7 @@ import { ProfilesModule } from './modules/profiles/profiles.module';
 import { PhotosModule } from './modules/photos/photos.module';
 import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { WhatsAppModule } from './modules/channels/whatsapp/whatsapp.module';
+import { KycModule } from './modules/kyc/kyc.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { WhatsAppModule } from './modules/channels/whatsapp/whatsapp.module';
     PhotosModule,
     OnboardingModule,
     WhatsAppModule,
+    KycModule,
   ],
   controllers: [HealthController, MeController],
 })
