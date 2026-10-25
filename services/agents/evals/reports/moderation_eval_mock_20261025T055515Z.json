@@ -1,0 +1,516 @@
+{
+  "mode": "mock",
+  "ts": "20261025T055515Z",
+  "n": 50,
+  "errors": 0,
+  "abusive": 40,
+  "safe": 10,
+  "recall": 0.2,
+  "precision": 0.5,
+  "recall_threshold": 0.9,
+  "precision_floor": 0.8,
+  "detected": [
+    "en04",
+    "en12",
+    "en16",
+    "hi02",
+    "hi06",
+    "hi10",
+    "hi12",
+    "hg08"
+  ],
+  "missed": [
+    "en01",
+    "en02",
+    "en03",
+    "en05",
+    "en06",
+    "en07",
+    "en08",
+    "en09",
+    "en10",
+    "en11",
+    "en13",
+    "en14",
+    "en15",
+    "en17",
+    "en18",
+    "en19",
+    "en20",
+    "hi01",
+    "hi03",
+    "hi04",
+    "hi05",
+    "hi07",
+    "hi08",
+    "hi09",
+    "hi11",
+    "hg01",
+    "hg02",
+    "hg03",
+    "hg04",
+    "hg05",
+    "hg06",
+    "hg07"
+  ],
+  "false_alarms": [
+    "sf02",
+    "sf04",
+    "sf06",
+    "sf08",
+    "sf10"
+  ],
+  "pass": false,
+  "rows": [
+    {
+      "id": "en01",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 6
+    },
+    {
+      "id": "en02",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en03",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en04",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "en05",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en06",
+      "lang": "en",
+      "expected": "off_platform_pressure",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en07",
+      "lang": "en",
+      "expected": "off_platform_pressure",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en08",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en09",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en10",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en11",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en12",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "en13",
+      "lang": "en",
+      "expected": "off_platform_pressure",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en14",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en15",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en16",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "en17",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en18",
+      "lang": "en",
+      "expected": "off_platform_pressure",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en19",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "en20",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi01",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi02",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "hi03",
+      "lang": "hi",
+      "expected": "off_platform_pressure",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi04",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi05",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi06",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "hi07",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi08",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi09",
+      "lang": "hi",
+      "expected": "off_platform_pressure",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi10",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "hi11",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hi12",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "hg01",
+      "lang": "hinglish",
+      "expected": "money_request",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hg02",
+      "lang": "hinglish",
+      "expected": "off_platform_pressure",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hg03",
+      "lang": "hinglish",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hg04",
+      "lang": "hinglish",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hg05",
+      "lang": "hinglish",
+      "expected": "scam_script",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hg06",
+      "lang": "hinglish",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hg07",
+      "lang": "hinglish",
+      "expected": "off_platform_pressure",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "hg08",
+      "lang": "hinglish",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "sf01",
+      "lang": "en",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "sf02",
+      "lang": "en",
+      "expected": "safe",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "sf03",
+      "lang": "en",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "sf04",
+      "lang": "en",
+      "expected": "safe",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "sf05",
+      "lang": "en",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "sf06",
+      "lang": "hi",
+      "expected": "safe",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "sf07",
+      "lang": "hi",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "sf08",
+      "lang": "hi",
+      "expected": "safe",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    },
+    {
+      "id": "sf09",
+      "lang": "hinglish",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 0
+    },
+    {
+      "id": "sf10",
+      "lang": "hinglish",
+      "expected": "safe",
+      "got": "scam_script",
+      "confidence": 0.9,
+      "correct": false,
+      "ms": 0
+    }
+  ]
+}

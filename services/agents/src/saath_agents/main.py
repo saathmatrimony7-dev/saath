@@ -21,6 +21,7 @@ from .config import AgentConfig, load_config
 from .llm_gateway_client import LlmGatewayClient
 from .onboarding.engine import A1OnboardingEngine, InterviewState
 from .onboarding.tools_client import CoreToolsPort
+from .moderation import A9Classifier
 from .tokens import ScopedTokenClaims, ScopedTokenError, verify_token
 
 
@@ -35,6 +36,15 @@ class OnboardingTurnBody(BaseModel):
     turnCount: int = Field(ge=0)
     userText: str = Field(min_length=1, max_length=5000)
     history: list[dict[str, str]] = Field(default_factory=list)
+
+
+class ModerationClassifyBody(BaseModel):
+    """A9 classify request (P2-05). Service-token route; no user binding."""
+
+    model_config = {"extra": "forbid"}
+
+    text: str = Field(min_length=1, max_length=2000)
+    context: str = Field(default="report", max_length=32)  # report | chat | bio
 
 
 def require_service_token(request: Request, x_internal_token: str | None = Header(default=None)) -> None:
@@ -103,5 +113,16 @@ def create_app(config: AgentConfig | None = None) -> FastAPI:
         )
         out = engine.take_turn(state, body.userText)
         return {"replyText": out.reply_text, "status": out.status}
+
+    @app.post("/internal/moderation/classify")
+    def moderation_classify(
+        body: ModerationClassifyBody,
+        _token: None = Depends(require_service_token),
+    ) -> dict[str, object]:
+        """A9: classify user-generated text. Returns labels only — never the
+        input text back (rule 6/8 hygiene)."""
+        cfg: AgentConfig = app.state.config
+        verdict = A9Classifier(llm=LlmGatewayClient(cfg)).classify(body.text)
+        return verdict.model_dump()
 
     return app

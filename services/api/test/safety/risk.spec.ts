@@ -10,6 +10,8 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { createHmac } from 'node:crypto';
 import { bootTestApp, signupTestUser, TestClient, type TestApp } from '../helpers/test-app';
 import { RiskScoringService } from '../../src/modules/safety/risk-scoring.service';
+import type { MockModerationAgent } from '../../src/modules/safety/moderation-agent';
+import { MODERATION_AGENT } from '../../src/modules/safety/moderation-agent.tokens';
 import { PrismaService } from '../../src/prisma/prisma.service';
 
 const SECRET = 'test-kyc-webhook-secret-0123456789';
@@ -143,6 +145,69 @@ describe('risk scoring signals', () => {
     // Owner context must see ZERO cases (deny by default).
     const ownCases = await prisma.withUser(userId, (tx) => tx.safetyCase.findMany());
     expect(ownCases).toHaveLength(0);
+  });
+});
+
+describe('A9 wiring (P2-05)', () => {
+  it('scam-family report details at high confidence open an a9 case', async () => {
+    const moderation = t.app.get(MODERATION_AGENT) as MockModerationAgent;
+    moderation.scripted = { label: 'scam_script', confidence: 0.95 };
+
+    const { client: reporter } = await signupTestUser(t, '+919876500601');
+    const { userId: subject } = await signupTestUser(t, '+919876500602');
+    const res = await reporter.post(
+      `/v1/users/${subject}/report`,
+      { reason: 'scam', details: 'asked me to buy gift cards and pay customs fees' },
+      reporter.csrfHeaders(),
+    );
+    expect(res.status).toBe(200);
+
+    const prisma = t.app.get(PrismaService);
+    const cases = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'risk', true)`;
+      return tx.safetyCase.findMany({ where: { subjectId: subject, source: 'a9' } });
+    });
+    expect(cases).toHaveLength(1);
+    expect(cases[0]?.severity).toBe('high');
+    expect(moderation.seen.at(-1)).toContain('gift cards');
+  });
+
+  it('low-confidence or safe verdicts open no case; missing details skip A9', async () => {
+    const moderation = t.app.get(MODERATION_AGENT) as MockModerationAgent;
+    const prisma = t.app.get(PrismaService);
+
+    // Low confidence.
+    moderation.scripted = { label: 'money_request', confidence: 0.4 };
+    const { client: r1 } = await signupTestUser(t, '+919876500603');
+    const { userId: s1 } = await signupTestUser(t, '+919876500604');
+    await r1.post(
+      `/v1/users/${s1}/report`,
+      { reason: 'scam', details: 'vague money talk' },
+      r1.csrfHeaders(),
+    );
+
+    // Safe verdict.
+    moderation.scripted = { label: 'safe', confidence: 0.99 };
+    const { client: r2 } = await signupTestUser(t, '+919876500605');
+    const { userId: s2 } = await signupTestUser(t, '+919876500606');
+    await r2.post(
+      `/v1/users/${s2}/report`,
+      { reason: 'scam', details: 'nothing concrete' },
+      r2.csrfHeaders(),
+    );
+
+    // No details → no classification call.
+    const seenBefore = moderation.seen.length;
+    const { client: r3 } = await signupTestUser(t, '+919876500607');
+    const { userId: s3 } = await signupTestUser(t, '+919876500608');
+    await r3.post(`/v1/users/${s3}/report`, { reason: 'fake_profile' }, r3.csrfHeaders());
+    expect(moderation.seen.length).toBe(seenBefore);
+
+    const cases = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'risk', true)`;
+      return tx.safetyCase.findMany({ where: { subjectId: { in: [s1, s2, s3] }, source: 'a9' } });
+    });
+    expect(cases).toHaveLength(0);
   });
 });
 

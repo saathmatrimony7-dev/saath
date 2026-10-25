@@ -10,6 +10,7 @@
  * browser e2e can complete login. This process is dev/test tooling only and
  * must never be deployed (it is refused in production, see config.ts).
  */
+import '../src/load-env'; // .env.local before AppModule so config sees real keys
 import { createServer } from 'node:net';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';

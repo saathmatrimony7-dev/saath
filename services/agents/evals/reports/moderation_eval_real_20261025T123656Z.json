@@ -1,0 +1,512 @@
+{
+  "mode": "real",
+  "ts": "20261025T123656Z",
+  "n": 50,
+  "errors": 2,
+  "abusive": 40,
+  "safe": 10,
+  "recall": 0.9,
+  "precision": 1.0,
+  "recall_threshold": 0.9,
+  "precision_floor": 0.8,
+  "detected": [
+    "en01",
+    "en03",
+    "en04",
+    "en05",
+    "en06",
+    "en07",
+    "en08",
+    "en09",
+    "en10",
+    "en11",
+    "en12",
+    "en13",
+    "en14",
+    "en15",
+    "en16",
+    "en17",
+    "en18",
+    "en19",
+    "en20",
+    "hi01",
+    "hi02",
+    "hi03",
+    "hi04",
+    "hi05",
+    "hi06",
+    "hi07",
+    "hi10",
+    "hi11",
+    "hi12",
+    "hg02",
+    "hg03",
+    "hg04",
+    "hg05",
+    "hg06",
+    "hg07",
+    "hg08"
+  ],
+  "missed": [
+    "en02",
+    "hi08",
+    "hi09",
+    "hg01"
+  ],
+  "false_alarms": [],
+  "pass": true,
+  "rows": [
+    {
+      "id": "en01",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1683
+    },
+    {
+      "id": "en02",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.95,
+      "correct": false,
+      "ms": 1516
+    },
+    {
+      "id": "en03",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.7,
+      "correct": true,
+      "ms": 2236
+    },
+    {
+      "id": "en04",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 1052
+    },
+    {
+      "id": "en05",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 2146
+    },
+    {
+      "id": "en06",
+      "lang": "en",
+      "expected": "off_platform_pressure",
+      "got": "off_platform_pressure",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 1439
+    },
+    {
+      "id": "en07",
+      "lang": "en",
+      "expected": "off_platform_pressure",
+      "got": "off_platform_pressure",
+      "confidence": 0.72,
+      "correct": true,
+      "ms": 1963
+    },
+    {
+      "id": "en08",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1090
+    },
+    {
+      "id": "en09",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 1891
+    },
+    {
+      "id": "en10",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1238
+    },
+    {
+      "id": "en11",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1116
+    },
+    {
+      "id": "en12",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1237
+    },
+    {
+      "id": "en13",
+      "lang": "en",
+      "expected": "off_platform_pressure",
+      "got": "off_platform_pressure",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1152
+    },
+    {
+      "id": "en14",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 1028
+    },
+    {
+      "id": "en15",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 1799
+    },
+    {
+      "id": "en16",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 1799
+    },
+    {
+      "id": "en17",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 1460
+    },
+    {
+      "id": "en18",
+      "lang": "en",
+      "expected": "off_platform_pressure",
+      "got": "off_platform_pressure",
+      "confidence": 0.8,
+      "correct": true,
+      "ms": 1750
+    },
+    {
+      "id": "en19",
+      "lang": "en",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.92,
+      "correct": true,
+      "ms": 1898
+    },
+    {
+      "id": "en20",
+      "lang": "en",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 1123
+    },
+    {
+      "id": "hi01",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1634
+    },
+    {
+      "id": "hi02",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.82,
+      "correct": true,
+      "ms": 1766
+    },
+    {
+      "id": "hi03",
+      "lang": "hi",
+      "expected": "off_platform_pressure",
+      "got": "off_platform_pressure",
+      "confidence": 0.85,
+      "correct": true,
+      "ms": 1883
+    },
+    {
+      "id": "hi04",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 1480
+    },
+    {
+      "id": "hi05",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 2034
+    },
+    {
+      "id": "hi06",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.96,
+      "correct": true,
+      "ms": 1553
+    },
+    {
+      "id": "hi07",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.93,
+      "correct": true,
+      "ms": 2006
+    },
+    {
+      "id": "hi08",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "scam_script",
+      "confidence": 0.93,
+      "correct": false,
+      "ms": 1962
+    },
+    {
+      "id": "hi09",
+      "lang": "hi",
+      "expected": "off_platform_pressure",
+      "got": "ERROR",
+      "confidence": 0.0,
+      "correct": false,
+      "error": "moderation failed after retries: no JSON object in model output",
+      "ms": 4099
+    },
+    {
+      "id": "hi10",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1951
+    },
+    {
+      "id": "hi11",
+      "lang": "hi",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.87,
+      "correct": true,
+      "ms": 1707
+    },
+    {
+      "id": "hi12",
+      "lang": "hi",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.94,
+      "correct": true,
+      "ms": 1557
+    },
+    {
+      "id": "hg01",
+      "lang": "hinglish",
+      "expected": "money_request",
+      "got": "ERROR",
+      "confidence": 0.0,
+      "correct": false,
+      "error": "moderation failed after retries: no JSON object in model output",
+      "ms": 4404
+    },
+    {
+      "id": "hg02",
+      "lang": "hinglish",
+      "expected": "off_platform_pressure",
+      "got": "off_platform_pressure",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 2165
+    },
+    {
+      "id": "hg03",
+      "lang": "hinglish",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.96,
+      "correct": true,
+      "ms": 1135
+    },
+    {
+      "id": "hg04",
+      "lang": "hinglish",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1000
+    },
+    {
+      "id": "hg05",
+      "lang": "hinglish",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 1396
+    },
+    {
+      "id": "hg06",
+      "lang": "hinglish",
+      "expected": "money_request",
+      "got": "money_request",
+      "confidence": 0.95,
+      "correct": true,
+      "ms": 1879
+    },
+    {
+      "id": "hg07",
+      "lang": "hinglish",
+      "expected": "off_platform_pressure",
+      "got": "off_platform_pressure",
+      "confidence": 0.9,
+      "correct": true,
+      "ms": 1218
+    },
+    {
+      "id": "hg08",
+      "lang": "hinglish",
+      "expected": "scam_script",
+      "got": "scam_script",
+      "confidence": 0.86,
+      "correct": true,
+      "ms": 4225
+    },
+    {
+      "id": "sf01",
+      "lang": "en",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.98,
+      "correct": true,
+      "ms": 1153
+    },
+    {
+      "id": "sf02",
+      "lang": "en",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 2264
+    },
+    {
+      "id": "sf03",
+      "lang": "en",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 1616
+    },
+    {
+      "id": "sf04",
+      "lang": "en",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 1637
+    },
+    {
+      "id": "sf05",
+      "lang": "en",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 998
+    },
+    {
+      "id": "sf06",
+      "lang": "hi",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.98,
+      "correct": true,
+      "ms": 1080
+    },
+    {
+      "id": "sf07",
+      "lang": "hi",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 1062
+    },
+    {
+      "id": "sf08",
+      "lang": "hi",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.98,
+      "correct": true,
+      "ms": 1162
+    },
+    {
+      "id": "sf09",
+      "lang": "hinglish",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 1050
+    },
+    {
+      "id": "sf10",
+      "lang": "hinglish",
+      "expected": "safe",
+      "got": "safe",
+      "confidence": 0.97,
+      "correct": true,
+      "ms": 1177
+    }
+  ]
+}

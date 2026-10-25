@@ -14,6 +14,8 @@ import { BadRequestException, Inject, Injectable, NotFoundException } from '@nes
 import { createLogger } from '@saath/logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RiskScoringService } from './risk-scoring.service';
+import { MODERATION_AGENT } from './moderation-agent.tokens';
+import type { ModerationAgentClient } from './moderation-agent';
 import type { ReportUserDto } from './safety.dto';
 
 const logger = createLogger('safety');
@@ -23,6 +25,7 @@ export class SafetyService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(RiskScoringService) private readonly risk: RiskScoringService,
+    @Inject(MODERATION_AGENT) private readonly moderation: ModerationAgentClient,
   ) {}
 
   /** Pre-auth existence check in the safety service context (RLS). */
@@ -50,8 +53,29 @@ export class SafetyService {
       }),
     );
     await this.risk.recalculate(subjectId); // A3: a fresh report may open a case
+    await this.classifyReportDetails(subjectId, dto.details);
     logger.info({ reporterId, subjectId, reason: dto.reason }, 'user reported');
     return { reportId: report.id, already: false };
+  }
+
+  /**
+   * A9 (P2-05): classify the report's free-text details; scam-family labels
+   * at/above confidence open an a9 safety case. Classification failures must
+   * never break reporting — log and continue.
+   */
+  private async classifyReportDetails(subjectId: string, details: string | undefined) {
+    if (!details?.trim()) return;
+    let verdict;
+    try {
+      verdict = await this.moderation.classify(details);
+    } catch (err) {
+      logger.error({ err, subjectId }, 'A9 classification failed');
+      return;
+    }
+    if (verdict.confidence < 0.7 || verdict.label === 'safe') return;
+    const severity =
+      verdict.label === 'harassment' || verdict.label === 'sexual_content' ? 'medium' : 'high';
+    await this.risk.openCase(subjectId, 'a9', severity);
   }
 
   /** True when either direction of the pair is blocked (service context:

@@ -87,6 +87,10 @@ const configSchema = z.object({
   IDFY_ACCOUNT_ID: z.string().optional(),
   IDFY_API_KEY: z.string().optional(),
 
+  // A9 moderation agent (P2-05): report text is classified by the agents
+  // service; chat pre-send checks land in P4. Mock in dev/test.
+  MODERATION_AGENT_TRANSPORT: z.enum(['mock', 'http']).default('mock'),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
@@ -124,6 +128,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     if (cfg.KYC_PROVIDER === 'mock') violations.push('KYC_PROVIDER=mock');
     if (cfg.KYC_WEBHOOK_SECRET === 'dev-kyc-webhook-secret') {
       violations.push('KYC_WEBHOOK_SECRET is the development default');
+    }
+    if (cfg.MODERATION_AGENT_TRANSPORT === 'mock') {
+      violations.push('MODERATION_AGENT_TRANSPORT=mock');
     }
     if (!cfg.COOKIE_SECURE) violations.push('COOKIE_SECURE=false');
     if (violations.length > 0) {
