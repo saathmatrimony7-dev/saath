@@ -22,6 +22,7 @@ model User {
   birthYear    Int?      @map("birth_year") @db.SmallInt
   gender       String?
   locale       String    @default("en")
+  role         String    @default("member") // member | support | moderator | admin | superadmin (P2-06)
   createdVia   String    @default("self") @map("created_via")
   lastActiveAt DateTime? @map("last_active_at")
   createdAt    DateTime  @default(now()) @map("created_at")
@@ -44,6 +45,8 @@ model User {
   reportsReceived UserReport[] @relation("reportsReceived")
   riskScore RiskScore?
   safetyCases SafetyCase[]
+  adminElevations AdminElevation[]
+  adminAudit AdminAudit[]
 
   @@map("users")
 }
@@ -425,4 +428,38 @@ model SafetyCase {
   @@index([subjectId, status])
   @@index([status, severity])
   @@map("safety_cases")
+}
+
+/// JIT admin elevation (P2-06, DESIGN.md A12.2): time-boxed, recorded, revoked
+/// on demand. Solo mode allows self-grant (granted_by == user_id) — logged.
+model AdminElevation {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  grantedBy String    @map("granted_by") @db.Uuid
+  reason    String
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("admin_elevations")
+}
+
+/// Append-only admin audit trail (P2-06 exit criterion 3): every admin view
+/// and action writes a row. Ids/kinds only — never record contents (C4 stays
+/// out of the log). No UPDATE/DELETE grants; service-context access.
+model AdminAudit {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorId     String   @map("actor_id") @db.Uuid
+  action      String // admin.view.* | admin.action.*
+  subjectKind String   @map("subject_kind") // user | case | audit | elevation
+  subjectId   String?  @map("subject_id")
+  meta        Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at")
+  actor       User     @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([subjectKind, subjectId])
+  @@map("admin_audit")
 }

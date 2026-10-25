@@ -79,6 +79,13 @@ export class AuthService {
     const sessionId = randomUUID();
     const { token: refreshToken, hash } = this.tokens.generateRefreshToken();
     const expiresAt = new Date(Date.now() + this.config.REFRESH_TOKEN_TTL_SEC * 1000);
+    const role = await this.prisma.withUser(userId, async (tx) => {
+      const user = await tx.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: { role: true },
+      });
+      return user.role;
+    });
 
     await this.prisma.withUser(userId, async (tx) => {
       await tx.session.create({
@@ -94,7 +101,7 @@ export class AuthService {
       await tx.user.update({ where: { id: userId }, data: { lastActiveAt: new Date() } });
     });
 
-    const accessToken = await this.tokens.signAccessToken({ sub: userId, sid: sessionId });
+    const accessToken = await this.tokens.signAccessToken({ sub: userId, sid: sessionId, role });
     logger.info({ userId, sessionId }, 'session issued');
     return { accessToken, refreshToken, userId };
   }
@@ -107,6 +114,7 @@ export class AuthService {
       await tx.$executeRaw`SELECT set_config('app.service', 'identity', true)`;
       return tx.session.findUnique({
         where: { refreshTokenHash: presentedHash },
+        include: { user: { select: { role: true } } },
       });
     });
 
@@ -133,6 +141,7 @@ export class AuthService {
     const accessToken = await this.tokens.signAccessToken({
       sub: session.userId,
       sid: session.id,
+      role: session.user?.role ?? 'member',
     });
     logger.info({ sessionId: session.id }, 'refresh token rotated');
     return { accessToken, refreshToken: next.token, userId: session.userId };

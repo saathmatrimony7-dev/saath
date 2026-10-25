@@ -12,6 +12,7 @@ import { OnboardingModule } from './modules/onboarding/onboarding.module';
 import { WhatsAppModule } from './modules/channels/whatsapp/whatsapp.module';
 import { KycModule } from './modules/kyc/kyc.module';
 import { SafetyModule } from './modules/safety/safety.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SafetyModule } from './modules/safety/safety.module';
     WhatsAppModule,
     KycModule,
     SafetyModule,
+    AdminModule,
   ],
   controllers: [HealthController, MeController],
 })

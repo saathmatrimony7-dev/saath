@@ -91,6 +91,9 @@ const configSchema = z.object({
   // service; chat pre-send checks land in P4. Mock in dev/test.
   MODERATION_AGENT_TRANSPORT: z.enum(['mock', 'http']).default('mock'),
 
+  // Admin access (P2-06): JIT elevation lifetime (DESIGN.md §12.2).
+  ADMIN_JIT_TTL_SEC: z.coerce.number().int().positive().default(900),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),

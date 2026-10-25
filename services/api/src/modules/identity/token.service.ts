@@ -11,6 +11,7 @@ import type { AppConfig } from '../../config';
 export interface AccessTokenPayload {
   sub: string; // user id
   sid: string; // session id
+  role: string; // RBAC claim (P2-06); stale for ≤ the 10-min access TTL
 }
 
 export class TokenService {
@@ -28,7 +29,7 @@ export class TokenService {
 
   async signAccessToken(payload: AccessTokenPayload): Promise<string> {
     const key = await this.signingKey();
-    return new SignJWT({ sid: payload.sid })
+    return new SignJWT({ sid: payload.sid, role: payload.role })
       .setProtectedHeader({ alg: 'ES256', kid: this.config.JWT_KEY_ID })
       .setSubject(payload.sub)
       .setIssuer(this.config.JWT_ISSUER)
@@ -46,7 +47,11 @@ export class TokenService {
     if (!payload.sub || typeof payload.sid !== 'string') {
       throw new Error('malformed access token');
     }
-    return { sub: payload.sub, sid: payload.sid };
+    return {
+      sub: payload.sub,
+      sid: payload.sid,
+      role: typeof payload.role === 'string' ? payload.role : 'member',
+    };
   }
 
   generateRefreshToken(): { token: string; hash: string } {
