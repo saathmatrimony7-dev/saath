@@ -94,6 +94,10 @@ const configSchema = z.object({
   // Admin access (P2-06): JIT elevation lifetime (DESIGN.md §12.2).
   ADMIN_JIT_TTL_SEC: z.coerce.number().int().positive().default(900),
 
+  // Matching (P3-03, DESIGN.md §8 step 1): cap on the eligible-pool query.
+  // The Stage-2 pre-screen cap (top N per user per day) lands with P3-05.
+  MATCHING_POOL_LIMIT: z.coerce.number().int().positive().default(5000),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
