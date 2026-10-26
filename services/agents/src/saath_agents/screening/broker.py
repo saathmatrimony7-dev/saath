@@ -82,8 +82,16 @@ def combine_topic_results(
     answers_b: list[AdvocateTopicAnswer],
     weight_of: dict[str, int],
 ) -> list[TopicScore]:
-    """One result per topic: conflict if either side conflicts, compatible
-    only when both agree compatible, otherwise partial."""
+    """One result per topic, with an asymmetric rule that favours visibility
+    (§17: false-incompatible is the critical metric — a hidden good match
+    costs more than a shown negotiable one):
+
+    - conflict only when BOTH advocates declare conflict (a single-side
+      "conflict" becomes partial — one side seeing tension must not hide
+      the pair by itself);
+    - compatible only when both agree compatible;
+    - otherwise partial.
+    """
     by_a = {a.topic: a for a in answers_a}
     by_b = {a.topic: a for a in answers_b}
     topics = sorted(set(by_a) | set(by_b))
@@ -91,7 +99,12 @@ def combine_topic_results(
     for topic in topics:
         ra = by_a.get(topic)
         rb = by_b.get(topic)
-        if (ra and ra.result == TopicResult.CONFLICT) or (rb and rb.result == TopicResult.CONFLICT):
+        if (
+            ra
+            and rb
+            and ra.result == TopicResult.CONFLICT
+            and rb.result == TopicResult.CONFLICT
+        ):
             result = TopicResult.CONFLICT
         elif ra and rb and ra.result == TopicResult.COMPATIBLE and rb.result == TopicResult.COMPATIBLE:
             result = TopicResult.COMPATIBLE

@@ -138,7 +138,7 @@ describe('listStaleEmbeddings (P3-02)', () => {
       { userId: fresh, fields: { profession: 'Teacher' } },
       { 'x-agent-token': tokenFor(fresh, ['save_profile_fields']) },
     );
-    const stale = await profiles.listStaleEmbeddings(100);
+    const stale = await profiles.listStaleEmbeddings(10_000);
     expect(stale).toContain(fresh);
   });
 

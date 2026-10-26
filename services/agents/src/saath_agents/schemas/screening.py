@@ -20,8 +20,8 @@ from pydantic import BaseModel, ConfigDict, Field
 # Pinned model versions (rule 13: models are config, versions are pinned in
 # code for reproducibility/audit, §7.4.6). Core refuses writes whose
 # model_version differs from its configured SCREENING_MODEL_VERSION.
-MODEL_VERSION = "a6-screen-v1"
-A5_MODEL_VERSION = "a5-advocate-v1"
+MODEL_VERSION = "a6-screen-v2"
+A5_MODEL_VERSION = "a5-advocate-v2"
 
 
 class Verdict(str, Enum):

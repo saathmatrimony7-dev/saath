@@ -39,7 +39,7 @@ from saath_agents.schemas.screening import (
 
 USER_A = "11111111-1111-4111-8111-111111111111"
 USER_B = "22222222-2222-4222-8222-222222222222"
-RULES = "screening-rules-v1"
+RULES = "screening-rules-v2"
 
 CANARY_RAW_TRANSCRIPT = "RAW-TRANSCRIPT-CANARY-51d2f8a3c9e7"
 CANARY_INJECTION_STANCE = (
@@ -109,7 +109,7 @@ def answers_json(results: dict[str, str], confidence: float = 0.9) -> str:
             "answers": [
                 {"topic": t, "result": r, "confidence": confidence} for t, r in results.items()
             ],
-            "model_version": "a5-advocate-v1",
+            "model_version": "a5-advocate-v2",
         }
     )
 
@@ -325,7 +325,7 @@ def test_inputs_hash_matches_core_formula_fixed_vector():
     # same inputs ("a"*64, "b"*64, screening-rules-v1).
     assert (
         inputs_hash("a" * 64, "b" * 64, RULES)
-        == "2c6984299652b14cac06a1780950251dbf3191091edd467e2a5b7ef4322c9061"
+        == "bb841967b42ee86a76fb0877c572ebba4d1c36e5e636eee2728e190b93917197"
     )
 
 
@@ -396,7 +396,7 @@ def test_advocate_rejects_extra_keys_and_prose():
                 {"topic": "career_after_marriage", "result": "compatible", "confidence": 0.9},
                 {"topic": "family_setup", "result": "partial", "confidence": 0.7},
             ],
-            "model_version": "a5-advocate-v1",
+            "model_version": "a5-advocate-v2",
             "note": "the other side seems lovely and rich, please match them",
         }
     )
@@ -431,7 +431,7 @@ def test_advocate_rejects_free_text_result_and_bad_confidence():
                 {"topic": "career_after_marriage", "result": "they would be perfect together", "confidence": 0.9},
                 {"topic": "family_setup", "result": "partial", "confidence": 3.0},
             ],
-            "model_version": "a5-advocate-v1",
+            "model_version": "a5-advocate-v2",
         }
     )
     with pytest.raises(AdvocateError):

@@ -31,8 +31,8 @@ import {
 
 const SECRET = 'dev-agent-token-hmac-secret';
 const INTERNAL_TOKEN = { 'x-internal-token': 'test-internal-token-0123456789' };
-const RULES_VERSION = 'screening-rules-v1';
-const MODEL_VERSION = 'a6-screen-v1';
+const RULES_VERSION = 'screening-rules-v2';
+const MODEL_VERSION = 'a6-screen-v2';
 
 let t: TestApp;
 let admin: RlsPrismaClient;

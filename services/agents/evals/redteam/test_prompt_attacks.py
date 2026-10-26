@@ -369,7 +369,7 @@ def _a5_answers(topics: list[str], result: str = "partial") -> str:
     return json.dumps(
         {
             "answers": [{"topic": t, "result": result, "confidence": 0.6} for t in topics],
-            "model_version": "a5-advocate-v1",
+            "model_version": "a5-advocate-v2",
         }
     )
 
@@ -417,7 +417,7 @@ def test_a5_output_boundary_holds_no_matter_what():
     leak = json.dumps(
         {
             "answers": [{"topic": "family_setup", "result": "partial", "confidence": 0.5}],
-            "model_version": "a5-advocate-v1",
+            "model_version": "a5-advocate-v2",
             "other_side_phone": "+919876543210",
         }
     )
@@ -431,7 +431,7 @@ def test_a5_output_boundary_holds_no_matter_what():
             "answers": [
                 {"topic": "family_setup", "result": "just call me on 9876543210", "confidence": 0.5}
             ],
-            "model_version": "a5-advocate-v1",
+            "model_version": "a5-advocate-v2",
         }
     )
     with pytest.raises(AdvocateError):
@@ -442,7 +442,7 @@ def test_a5_output_boundary_holds_no_matter_what():
     huge = json.dumps(
         {
             "answers": [{"topic": "x" * 300, "result": "partial", "confidence": 0.5}],
-            "model_version": "a5-advocate-v1",
+            "model_version": "a5-advocate-v2",
         }
     )
     with pytest.raises(AdvocateError):
@@ -478,8 +478,8 @@ def test_a6_verdict_never_contains_snapshot_text():
             "snapshotHash": hashlib.sha256(canonical.encode("utf-8")).hexdigest(),
             "prefVersion": 1,
             "profileVersion": 1,
-            "rulesVersion": "screening-rules-v1",
-            "modelVersion": "a6-screen-v1",
+            "rulesVersion": "screening-rules-v2",
+            "modelVersion": "a6-screen-v2",
         }
 
     b_a, b_b = bundle(snap_a), bundle(snap_b)
@@ -490,8 +490,8 @@ def test_a6_verdict_never_contains_snapshot_text():
                 "status": "miss",
                 "prefVersionA": 1,
                 "prefVersionB": 1,
-                "rulesVersion": "screening-rules-v1",
-                "modelVersion": "a6-screen-v1",
+                "rulesVersion": "screening-rules-v2",
+                "modelVersion": "a6-screen-v2",
             }
 
         def check_hard_filters(self, a, b):
