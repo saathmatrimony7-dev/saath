@@ -42,6 +42,7 @@ The files in `.claude/agents/` describe specialist roles: architect, backend-eng
 - Embedded Postgres on Windows inits with the ANSI codepage (WIN1252 server encoding) — non-ASCII data (Hindi/Tamil) then fails with SQLSTATE 22P05. Fixed by `initdbFlags: ['--encoding=UTF8', '--locale=C']` in dev-db.ts and test/global-setup.ts; legacy data dirs are healed by `scripts/enable-app-login.ts` (pg_database encoding UPDATE).
 - `@swc/core` is pinned to 1.15.x (pnpm override): 1.16's self-loading carrier rejects default Windows drive ACLs and `next dev` fails to boot (swc#12442).
 - apps/web talks to the Core API same-origin via a next.config rewrite (`/api/core/*` → `{CORE_API_URL}/v1/*`) — do not add CORS to the API. Session tokens stay in httpOnly cookies; the browser only reads the CSRF double-submit cookie for the `x-csrf-token` header. SSE turns use `fetch` + stream reader (EventSource can't set headers).
+- pgvector (P3, ADR-0012): `CREATE EXTENSION IF NOT EXISTS vector` lives in a hand-written migration; the embedded-Postgres harness needs a **locally compiled** vector.dll (one-time `.tools/pgvector-spike/build-all.cmd`, VS Build Tools; no Docker/SDK admin install needed — SDK headers come from Microsoft's NuGet packages). `scripts/install-pgvector-embedded.cjs` copies the artifacts and is invoked by `test/global-setup.ts` + `scripts/e2e-serve.ts`. The `profiles.embedding vector(1024)` column is Prisma `Unsupported` — always via hand-written SQL with validated numeric literals.
 
 ## Commands (create in P0 and keep working)
 

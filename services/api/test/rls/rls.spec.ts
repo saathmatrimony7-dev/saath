@@ -282,11 +282,17 @@ describe('P2 tables — kyc, safety, risk, admin audit', () => {
       expect(await tx.safetyCase.findMany()).toHaveLength(0);
       expect(await tx.adminAudit.findMany()).toHaveLength(0);
     });
-    // Service context sees what it wrote.
+    // Service context sees what it wrote. (Assertions are keyed to this
+    // spec's own rows: vitest workers share the global-setup DB, so other
+    // specs' service-context rows are visible here too.)
     await prisma.$transaction(async (tx) => {
       await tx.$executeRaw`SELECT set_config('app.service', 'admin', true)`;
-      expect(await tx.safetyCase.findMany()).toHaveLength(1);
-      expect(await tx.adminAudit.findMany()).toHaveLength(1);
+      expect(await tx.safetyCase.findMany({ where: { id: caseId } })).toHaveLength(1);
+      expect(
+        await tx.adminAudit.findMany({
+          where: { actorId: userA, action: 'admin.view.users' },
+        }),
+      ).toHaveLength(1);
     });
   });
 

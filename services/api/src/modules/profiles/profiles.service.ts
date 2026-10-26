@@ -61,6 +61,33 @@ export class ProfilesService {
   }
 
   /**
+   * P3-01: write the profile embedding (A2's `save_embedding` tool).
+   * C2 column over the A2-normalised structured summary — never raw bio.
+   * Raw SQL because the pgvector column is Unsupported in the Prisma client;
+   * the literal is built only from validated finite numbers (no injection).
+   * Does NOT bump profile_version: derived data, not a user edit.
+   */
+  async saveEmbedding(userId: string, vector: number[]) {
+    if (vector.length !== 1024) {
+      throw new BadRequestException('embedding must have exactly 1024 dimensions');
+    }
+    for (const x of vector) {
+      if (!Number.isFinite(x) || Math.abs(x) > 1e6) {
+        throw new BadRequestException('embedding values must be finite');
+      }
+    }
+    const literal = `[${vector.join(',')}]`;
+    return this.prisma.withUser(userId, async (tx) => {
+      const rows = await tx.$executeRawUnsafe(
+        `UPDATE "profiles" SET "embedding" = '${literal}'::vector WHERE "user_id" = $1::uuid`,
+        userId,
+      );
+      if (rows === 0) throw new NotFoundException('profile not found');
+      return { ok: true as const };
+    });
+  }
+
+  /**
    * Create-or-update the caller's profile; bumps profile_version on every
    * write. Provided attributes are upserted after validation.
    */

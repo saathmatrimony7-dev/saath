@@ -16,6 +16,12 @@ import { createServer } from 'node:net';
 
 const require = createRequire(__filename);
 
+// P3-01 (ADR-0012): pgvector for the embedded binaries — no-op when already
+// installed; fails with build instructions when the one-time local build is
+// missing (migrations need CREATE EXTENSION vector).
+const { installPgvectorEmbedded } = require('../../../scripts/install-pgvector-embedded.cjs');
+installPgvectorEmbedded();
+
 /** File where the ephemeral DB URLs are published for test workers. */
 export const TEST_DB_URL_FILE = join(tmpdir(), 'saath-test-db-urls.json');
 

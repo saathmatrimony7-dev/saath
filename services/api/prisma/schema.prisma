@@ -89,6 +89,10 @@ model Profile {
   visibility         String   @default("members")
   verificationTier   Int      @default(0) @map("verification_tier") @db.SmallInt
   profileVersion     Int      @default(1) @map("profile_version")
+  /// C2: embedding of the A2-normalised structured summary (never raw bio).
+  /// Written only via the save_embedding internal tool (P3-01, ADR-0012).
+  /// Unsupported (pgvector): read/written with hand-written SQL, not Prisma DMMF.
+  embedding          Unsupported("vector(1024")?
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)

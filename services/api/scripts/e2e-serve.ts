@@ -31,6 +31,10 @@ import { SMS_PROVIDER } from '../src/modules/identity/tokens';
 const require = createRequire(__filename);
 const PORT = Number(process.env.E2E_PORT ?? 3100);
 
+// P3-01 (ADR-0012): pgvector for the embedded binaries (no-op if present).
+const { installPgvectorEmbedded } = require('../../../scripts/install-pgvector-embedded.cjs');
+installPgvectorEmbedded();
+
 async function freePort(): Promise<number> {
   return new Promise((resolve, reject) => {
     const srv = createServer();

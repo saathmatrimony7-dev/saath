@@ -83,8 +83,11 @@ describe('admin access control', () => {
     }
 
     const audit = await auditRows();
-    const view = audit.find((a) => a.action === 'admin.view.users');
-    expect(view?.actorId).toBe(userId);
+    // Other spec files share this DB and also write admin_audit rows — assert
+    // THIS admin's view was recorded, not that it is the only/first one.
+    const view = audit.find(
+      (a) => a.action === 'admin.view.users' && a.actorId === userId,
+    );
     expect(view?.subjectKind).toBe('user');
   });
 

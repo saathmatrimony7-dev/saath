@@ -1,3 +1,18 @@
-"""Saath matching pipeline. Built in P3; P0 delivers the package skeleton only."""
+"""Saath matching pipeline: retrieval, ranking, nightly batch (DESIGN.md §8)."""
 
-__version__ = "0.0.0"
+from saath_matching.embeddings import (
+    EmbeddingError,
+    EmbeddingProvider,
+    EmbeddingSummary,
+    build_embedding_provider,
+)
+
+__version__ = "0.1.0"
+
+__all__ = [
+    "__version__",
+    "EmbeddingError",
+    "EmbeddingProvider",
+    "EmbeddingSummary",
+    "build_embedding_provider",
+]

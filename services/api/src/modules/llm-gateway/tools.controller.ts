@@ -8,6 +8,7 @@
  *   POST /internal/tools/save_profile_fields
  *   POST /internal/tools/get_attribute_definitions
  *   POST /internal/tools/save_dealbreakers
+ *   POST /internal/tools/save_embedding (P3-01)
  */
 import {
   Body,
@@ -34,6 +35,9 @@ const saveFieldsSchema = z.object({ userId: z.string().uuid(), fields: patchProf
 const getAttrsSchema = z.object({ community: z.string().max(64).optional() }).strict();
 const saveDealbreakersToolSchema = z
   .object({ userId: z.string().uuid(), dealbreakers: putDealbreakersSchema.shape.dealbreakers })
+  .strict();
+const saveEmbeddingSchema = z
+  .object({ userId: z.string().uuid(), vector: z.array(z.number()).length(1024) })
   .strict();
 
 type AuthedRequest = Request & { [AGENT_CLAIMS_KEY]?: ScopedTokenClaims };
@@ -97,5 +101,18 @@ export class ToolsController {
   ) {
     this.assertBinding(req, body.userId);
     return this.profiles.putDealbreakers(body.userId, { dealbreakers: body.dealbreakers });
+  }
+
+  /** A2 (P3-01): persist the profile embedding of the normalised summary. */
+  @Post('save_embedding')
+  @HttpCode(HttpStatus.OK)
+  @ToolName('save_embedding')
+  saveEmbedding(
+    @Req() req: AuthedRequest,
+    @Body(new ZodValidationPipe(saveEmbeddingSchema))
+    body: { userId: string; vector: number[] },
+  ) {
+    this.assertBinding(req, body.userId);
+    return this.profiles.saveEmbedding(body.userId, body.vector);
   }
 }
