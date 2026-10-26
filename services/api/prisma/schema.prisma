@@ -93,6 +93,14 @@ model Profile {
   /// Written only via the save_embedding internal tool (P3-01, ADR-0012).
   /// Unsupported (pgvector): read/written with hand-written SQL, not Prisma DMMF.
   embedding          Unsupported("vector(1024")?
+  /// P3-02 provenance: which summary (sha256) / model / versions produced the
+  /// embedding. Regular columns (C2, inherits profiles RLS); written only via
+  /// the save_embedding internal tool. embedding_updated_at = last embed write.
+  embeddingSummaryHash    String?   @map("embedding_summary_hash")
+  embeddingModelVersion   String?   @map("embedding_model_version")
+  embeddingProfileVersion Int?      @map("embedding_profile_version")
+  embeddingPrefVersion    Int?      @map("embedding_pref_version")
+  embeddingUpdatedAt      DateTime? @map("embedding_updated_at")
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)

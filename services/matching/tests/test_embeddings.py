@@ -72,8 +72,11 @@ class TestFactory:
         provider = build_embedding_provider("hashing", node_env="development")
         assert isinstance(provider, HashingEmbeddingProvider)
 
-    def test_local_stub_raises_not_installed(self):
-        with pytest.raises(EmbeddingError, match="P3-02"):
+    def test_local_raises_embedding_error_when_runtime_missing(self):
+        # The heavy sentence-transformers runtime is an optional [embed]
+        # extra; without it the provider must fail with install instructions
+        # (ImportError is translated to EmbeddingError).
+        with pytest.raises(EmbeddingError, match="install with"):
             build_embedding_provider("local", node_env="production")
 
     def test_provider_names_constant(self):

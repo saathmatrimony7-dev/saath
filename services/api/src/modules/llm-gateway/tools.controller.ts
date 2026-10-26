@@ -8,7 +8,7 @@
  *   POST /internal/tools/save_profile_fields
  *   POST /internal/tools/get_attribute_definitions
  *   POST /internal/tools/save_dealbreakers
- *   POST /internal/tools/save_embedding (P3-01)
+ *   POST /internal/tools/save_embedding (P3-01, provenance P3-02)
  */
 import {
   Body,
@@ -37,7 +37,15 @@ const saveDealbreakersToolSchema = z
   .object({ userId: z.string().uuid(), dealbreakers: putDealbreakersSchema.shape.dealbreakers })
   .strict();
 const saveEmbeddingSchema = z
-  .object({ userId: z.string().uuid(), vector: z.array(z.number()).length(1024) })
+  .object({
+    userId: z.string().uuid(),
+    vector: z.array(z.number()).length(1024),
+    // P3-02 provenance (optional; semantics validated in ProfilesService).
+    summaryHash: z.string().max(64).optional(),
+    modelVersion: z.string().max(64).optional(),
+    profileVersion: z.number().int().optional(),
+    prefVersion: z.number().int().optional(),
+  })
   .strict();
 
 type AuthedRequest = Request & { [AGENT_CLAIMS_KEY]?: ScopedTokenClaims };
@@ -103,16 +111,21 @@ export class ToolsController {
     return this.profiles.putDealbreakers(body.userId, { dealbreakers: body.dealbreakers });
   }
 
-  /** A2 (P3-01): persist the profile embedding of the normalised summary. */
+  /** A2 (P3-01/P3-02): persist the profile embedding + provenance. */
   @Post('save_embedding')
   @HttpCode(HttpStatus.OK)
   @ToolName('save_embedding')
   saveEmbedding(
     @Req() req: AuthedRequest,
     @Body(new ZodValidationPipe(saveEmbeddingSchema))
-    body: { userId: string; vector: number[] },
+    body: z.infer<typeof saveEmbeddingSchema>,
   ) {
     this.assertBinding(req, body.userId);
-    return this.profiles.saveEmbedding(body.userId, body.vector);
+    return this.profiles.saveEmbedding(body.userId, body.vector, {
+      summaryHash: body.summaryHash,
+      modelVersion: body.modelVersion,
+      profileVersion: body.profileVersion,
+      prefVersion: body.prefVersion,
+    });
   }
 }

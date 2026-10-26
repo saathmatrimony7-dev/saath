@@ -1,10 +1,21 @@
 [project]
 name = "saath-matching"
-version = "0.1.0"
+version = "0.2.0"
 description = "Saath matching pipeline: retrieval, ranking, nightly batch (DESIGN.md §8)"
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi>=0.115",
+    "httpx>=0.28.1",
     "pydantic>=2.9",
+    "uvicorn>=0.32",
+]
+
+[project.optional-dependencies]
+# P3-02: heavy local embedding runtime (bge-m3). NOT installed by default;
+# dev/test venvs stay light (hashing provider). Install explicitly with:
+#   uv pip install 'saath-matching[embed]'
+embed = [
+    "sentence-transformers>=3.0",
 ]
 
 [dependency-groups]

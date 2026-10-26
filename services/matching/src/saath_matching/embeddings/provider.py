@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
 from typing import Protocol, runtime_checkable
 
 HASHING_MODEL_VERSION = "hash-embed-v1"
@@ -71,19 +72,51 @@ class HashingEmbeddingProvider:
 
 
 class LocalEmbeddingProvider:
-    """Real local open-source multilingual model (bge-m3, 1024-dim).
+    """Real local open-source multilingual model (bge-m3, 1024-dim, P3-02).
 
-    Placeholder seam for P3-02: config parsing works, but instantiation
-    raises until the optional ``[embed]`` extra ships the model runtime.
+    Runs fully on-prem (data residency, ADR-0012/D3). The heavy
+    ``sentence-transformers`` runtime is an optional ``[embed]`` extra and is
+    lazy-imported so the base venv and the test suite stay light; without it,
+    instantiation raises an EmbeddingError with install instructions.
+    Batch embeddings via SentenceTransformer.encode; mean-pooling is handled
+    by the library; ``normalize_embeddings=True`` L2-normalises the outputs.
+    Deterministic given the model weights.
     """
 
-    model_version = "bge-m3"
+    def __init__(
+        self, dimensions: int = 1024, model: str | None = None
+    ) -> None:
+        if dimensions <= 0:
+            raise EmbeddingError("dimensions must be a positive integer")
+        self.model_name = model or os.environ.get("EMBEDDING_MODEL", "BAAI/bge-m3")
+        self.dimensions = dimensions
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ImportError as exc:
+            raise EmbeddingError(
+                "local embedding provider not installed; "
+                "install with: uv pip install 'saath-matching[embed]'"
+            ) from exc
+        self._model = SentenceTransformer(self.model_name)
 
-    def __init__(self, dimensions: int = 1024) -> None:
-        raise EmbeddingError(
-            "local embedding provider not installed; "
-            "pip install saath-matching[embed] (lands in P3-02)"
+    @property
+    def model_version(self) -> str:
+        return self.model_name
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        if not texts:
+            return []
+        encoded = self._model.encode(
+            texts, normalize_embeddings=True, convert_to_numpy=True
         )
+        vectors = encoded.tolist()
+        for vector in vectors:
+            if len(vector) != self.dimensions:
+                raise EmbeddingError(
+                    f"model returned {len(vector)} dimensions; "
+                    f"expected {self.dimensions}"
+                )
+        return vectors
 
 
 def build_embedding_provider(name: str, *, node_env: str) -> EmbeddingProvider:

@@ -45,6 +45,16 @@ interface AttributeDefRow {
   options: unknown;
 }
 
+/** Provenance metadata for an embedding write (P3-02, all optional). */
+export interface EmbeddingProvenance {
+  summaryHash?: string;
+  modelVersion?: string;
+  profileVersion?: number;
+  prefVersion?: number;
+}
+
+const SUMMARY_HASH_PATTERN = /^[a-f0-9]{64}$/;
+
 @Injectable()
 export class ProfilesService {
   constructor(
@@ -67,7 +77,7 @@ export class ProfilesService {
    * the literal is built only from validated finite numbers (no injection).
    * Does NOT bump profile_version: derived data, not a user edit.
    */
-  async saveEmbedding(userId: string, vector: number[]) {
+  async saveEmbedding(userId: string, vector: number[], meta?: EmbeddingProvenance) {
     if (vector.length !== 1024) {
       throw new BadRequestException('embedding must have exactly 1024 dimensions');
     }
@@ -76,14 +86,78 @@ export class ProfilesService {
         throw new BadRequestException('embedding values must be finite');
       }
     }
+    // P3-02 provenance (all optional; validated before any DB write).
+    if (meta?.summaryHash !== undefined && !SUMMARY_HASH_PATTERN.test(meta.summaryHash)) {
+      throw new BadRequestException('summaryHash must be a sha256 hex digest (64 lowercase hex chars)');
+    }
+    if (meta?.modelVersion !== undefined && meta.modelVersion.length > 64) {
+      throw new BadRequestException('modelVersion must be at most 64 characters');
+    }
+    for (const key of ['profileVersion', 'prefVersion'] as const) {
+      const v = meta?.[key];
+      if (v !== undefined && (!Number.isInteger(v) || v <= 0)) {
+        throw new BadRequestException(`${key} must be a positive integer`);
+      }
+    }
     const literal = `[${vector.join(',')}]`;
+    // Column names are hard-coded constants; only VALUES are parameters.
+    // Provenance columns are written only when provided, so a bare
+    // P3-01-style call (vector only) never clears existing provenance.
+    const sets = [`"embedding" = '${literal}'::vector`, '"embedding_updated_at" = now()'];
+    const params: unknown[] = [userId];
+    if (meta?.summaryHash !== undefined) {
+      params.push(meta.summaryHash);
+      sets.push(`"embedding_summary_hash" = $${params.length}`);
+    }
+    if (meta?.modelVersion !== undefined) {
+      params.push(meta.modelVersion);
+      sets.push(`"embedding_model_version" = $${params.length}`);
+    }
+    if (meta?.profileVersion !== undefined) {
+      params.push(meta.profileVersion);
+      sets.push(`"embedding_profile_version" = $${params.length}`);
+    }
+    if (meta?.prefVersion !== undefined) {
+      params.push(meta.prefVersion);
+      sets.push(`"embedding_pref_version" = $${params.length}`);
+    }
     return this.prisma.withUser(userId, async (tx) => {
       const rows = await tx.$executeRawUnsafe(
-        `UPDATE "profiles" SET "embedding" = '${literal}'::vector WHERE "user_id" = $1::uuid`,
-        userId,
+        `UPDATE "profiles" SET ${sets.join(', ')} WHERE "user_id" = $1::uuid`,
+        ...params,
       );
       if (rows === 0) throw new NotFoundException('profile not found');
       return { ok: true as const };
+    });
+  }
+
+  /**
+   * P3-02: users whose stored embedding no longer matches the live profile
+   * or preference versions (or who were never embedded). Runs in the
+   * 'matching' service context: profiles/preferences have a generic
+   * service policy (app.service non-empty), so no RLS change is needed for
+   * this read. NOTE: this introduces the 'matching' GUC value; P3-03 extends
+   * the users-service lookup policy for cross-user reads — not needed here
+   * (no users-table read).
+   */
+  async listStaleEmbeddings(limit: number): Promise<string[]> {
+    if (!Number.isInteger(limit) || limit <= 0 || limit > 10_000) {
+      throw new BadRequestException('limit must be a positive integer (max 10000)');
+    }
+    return this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'matching', true)`;
+      const rows = await tx.$queryRawUnsafe<Array<{ user_id: string }>>(
+        `SELECT p."user_id"
+           FROM "profiles" p
+          WHERE p."embedding" IS NULL
+             OR p."embedding_profile_version" IS DISTINCT FROM p."profile_version"
+             OR p."embedding_pref_version" IS DISTINCT FROM
+                (SELECT pr."version" FROM "preferences" pr
+                  WHERE pr."user_id" = p."user_id")
+          LIMIT $1::int`,
+        limit,
+      );
+      return rows.map((r) => r.user_id);
     });
   }
 
