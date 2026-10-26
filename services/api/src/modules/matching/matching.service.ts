@@ -33,8 +33,14 @@
  *   never a fail). A null partner value passes (cannot disprove).
  * - "Previously passed" exclusion: the interactions table lands in P3-08 —
  *   the pool query carries a TODO and no filter for it yet.
+ *
+ * P3-04 (DESIGN.md §8 steps 3-5) adds deterministic retrieval (pgvector ANN
+ * cosine over the eligible pool), reciprocity re-check and a weighted pre-rank
+ * (similarity / declared-field overlap / activity / verification tier), plus
+ * a pure exposure-cap filter for the P3-07 caller. No LLM anywhere here.
  */
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { createLogger } from '@saath/logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { AppConfig } from '../../config';
@@ -88,6 +94,78 @@ export interface PoolCandidate {
 export interface HardFilterResult {
   compatible: boolean;
   reasonCodes: string[];
+}
+
+/**
+ * Typed error so callers (P3-07 / the backfill worker) can distinguish "the
+ * user has no embedding yet" from other failures and trigger embedding first.
+ */
+export class EmbeddingMissingError extends Error {
+  readonly code = 'EMBEDDING_MISSING' as const;
+  constructor(userId: string) {
+    super(`profile embedding missing for user ${userId}`);
+    this.name = 'EmbeddingMissingError';
+  }
+}
+
+/** A candidate row from the ANN retrieval (DESIGN.md §8 step 3). */
+export interface RetrievedCandidate {
+  userId: string;
+  /** Cosine distance from the caller's embedding (pgvector `<=>`). */
+  distance: number;
+}
+
+/** A pre-ranked candidate row (DESIGN.md §8 step 5). */
+export interface RankedCandidate {
+  userId: string;
+  /** Weighted score over the four normalised components. */
+  score: number;
+  /** Embedding similarity in [0,1]: (1 - cosine distance) / 2. */
+  similarity: number;
+  /** Declared-field overlap signals (rule 10: never inferred). */
+  signals: { sameCity: boolean; sameDiet: boolean; sameCommunity: boolean };
+  /** Closed-vocabulary notes from the two-sided check (observability). */
+  reasonCodes: string[];
+}
+
+/**
+ * Strict parser for pgvector's textual form ('[1,0.5,-2,...]') back into
+ * number[]. Only bracketed, comma-separated finite numbers are accepted;
+ * when `dim` is given the component count must match exactly.
+ */
+export function parseVectorText(text: string, dim?: number): number[] {
+  const t = text.trim();
+  if (t.length < 2 || !t.startsWith('[') || !t.endsWith(']')) {
+    throw new Error('invalid vector text: expected [..] form');
+  }
+  const body = t.slice(1, -1).trim();
+  const parts = body === '' ? [] : body.split(',');
+  if (dim !== undefined && parts.length !== dim) {
+    throw new Error(`invalid vector text: expected ${dim} components, got ${parts.length}`);
+  }
+  if (parts.length === 0) {
+    throw new Error('invalid vector text: empty vector');
+  }
+  return parts.map((p, i) => {
+    const x = Number(p.trim());
+    if (!Number.isFinite(x)) {
+      throw new Error(`invalid vector text: component ${i} is not a finite number`);
+    }
+    return x;
+  });
+}
+
+/**
+ * Activity recency bucket (DESIGN.md §8 step 5): ≤7d → 1.0, ≤30d → 0.6,
+ * ≤90d → 0.3, older or unknown (null) → 0.1.
+ */
+export function activityScore(lastActiveAt: Date | null, now = new Date()): number {
+  if (lastActiveAt == null) return 0.1;
+  const days = (now.getTime() - lastActiveAt.getTime()) / 86_400_000;
+  if (days <= 7) return 1.0;
+  if (days <= 30) return 0.6;
+  if (days <= 90) return 0.3;
+  return 0.1;
 }
 
 type DealbreakerOp = 'eq' | 'neq' | 'in' | 'not_in' | 'lt' | 'gt';
@@ -238,6 +316,190 @@ export class MatchingService {
         verificationTier: r.verification_tier,
       }));
     });
+  }
+
+  /**
+   * Retrieval (DESIGN.md §8 step 3): pgvector ANN cosine (`<=>`) over the
+   * eligible pool, top `topK`. The caller's embedding is read back with
+   * `embedding::text` and re-parsed with the strict parser; a null embedding
+   * throws EmbeddingMissingError so the caller can trigger embedding first.
+   *
+   * The eligibility predicates mirror eligiblePool (status / age_verified /
+   * tier / visibility / self / approved photo / blocks both directions), plus
+   * `embedding IS NOT NULL`. The query vector literal is built only from
+   * validated finite numbers (same rule as save_embedding). Without the HNSW
+   * index this is an exact sequential scan with identical semantics.
+   */
+  async retrieveCandidates(
+    forUserId: string,
+    opts?: { topK?: number },
+  ): Promise<RetrievedCandidate[]> {
+    const topK = opts?.topK ?? this.config.MATCHING_RETRIEVAL_TOP_K;
+    if (!Number.isInteger(topK) || topK <= 0) {
+      throw new ForbiddenException('invalid retrieval topK');
+    }
+    const rows = await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'matching', true)`;
+      const embRows = await tx.$queryRaw<{ embedding: string | null }[]>`
+        SELECT p."embedding"::text AS embedding
+          FROM "profiles" p
+         WHERE p."user_id" = ${forUserId}::uuid`;
+      const emb = embRows[0]?.embedding;
+      if (emb == null) throw new EmbeddingMissingError(forUserId);
+      const vector = parseVectorText(emb, 1024);
+      const literal = `[${vector.join(',')}]`; // numeric-only, validated above
+      return tx.$queryRawUnsafe<{ user_id: string; dist: number }[]>(
+        `SELECT p."user_id" AS user_id,
+                (p."embedding" <=> '${literal}'::vector)::float8 AS dist
+           FROM "profiles" p
+           JOIN "users" u ON u."id" = p."user_id"
+          WHERE u."status" = 'active'
+            AND u."age_verified" = true
+            AND p."verification_tier" >= 1
+            AND p."visibility" <> 'hidden'
+            AND u."id" <> $1::uuid
+            AND EXISTS (
+                  SELECT 1 FROM "photos" ph
+                   WHERE ph."user_id" = u."id"
+                     AND ph."moderation_status" = 'approved'
+                )
+            AND NOT EXISTS (
+                  SELECT 1 FROM "blocks" b
+                   WHERE (b."blocker_id" = u."id" AND b."blocked_id" = $1::uuid)
+                      OR (b."blocker_id" = $1::uuid AND b."blocked_id" = u."id")
+                )
+            AND p."embedding" IS NOT NULL
+          ORDER BY p."embedding" <=> '${literal}'::vector
+          LIMIT $2::int`,
+        forUserId,
+        topK,
+      );
+    });
+    return rows.map((r) => ({ userId: r.user_id, distance: r.dist }));
+  }
+
+  /**
+   * Pre-rank (DESIGN.md §8 steps 4-5): reciprocity drop (full two-sided
+   * hardFilterCheck per candidate — the a→b direction already shaped the
+   * pool in P3-03, re-running keeps this step self-contained), then a
+   * weighted score over the four [0,1]-normalised components:
+   *   similarity = (1 - cosine dist) / 2
+   *   rule       = overlap signal count / 3 (same city / same diet /
+   *                same religion-or-community, declared fields only, rule 10)
+   *   activity   = activityScore(last_active_at)
+   *   tier       = verification_tier / 3
+   * Weights come from config (validated positive when used). Deterministic
+   * tie-break on userId; output is top `topN`.
+   *
+   * NOTE(P3-07): the per-candidate hardFilterCheck is O(n) queries — fine at
+   * top-K ≤ 200, batch it if the pool grows.
+   */
+  async preRankCandidates(
+    forUserId: string,
+    retrieved: RetrievedCandidate[],
+    opts?: { topN?: number },
+  ): Promise<RankedCandidate[]> {
+    const topN = opts?.topN ?? this.config.MATCHING_PRERANK_TOP_N;
+    if (!Number.isInteger(topN) || topN <= 0) {
+      throw new ForbiddenException('invalid pre-rank topN');
+    }
+    const w = this.preRankWeights();
+    if (retrieved.length === 0) return [];
+
+    const ids = retrieved.map((r) => r.userId);
+    const profiles = await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'matching', true)`;
+      return tx.$queryRaw<
+        {
+          user_id: string;
+          city_id: string | null;
+          diet: string | null;
+          community_id: string | null;
+          religion_id: string | null;
+          last_active_at: Date | null;
+          verification_tier: number;
+        }[]
+      >`
+        SELECT p."user_id" AS user_id, p."city_id", p."diet", p."community_id",
+               p."religion_id", u."last_active_at", p."verification_tier"
+          FROM "profiles" p
+          JOIN "users" u ON u."id" = p."user_id"
+         WHERE p."user_id"::text IN (${Prisma.join([forUserId, ...ids])})
+         -- Prisma.join binds strings; the cast makes the uuid comparison legal
+      `;
+    });
+    const byId = new Map(profiles.map((p) => [p.user_id, p]));
+    const me = byId.get(forUserId);
+
+    const ranked: RankedCandidate[] = [];
+    for (const r of retrieved) {
+      // Step 4 — reciprocity: drop when the two-sided check fails.
+      const check = await this.hardFilterCheck(forUserId, r.userId);
+      if (!check.compatible) continue;
+      const prof = byId.get(r.userId);
+      if (!prof) continue; // retrieval guarantees presence; defensive only
+
+      const signals = {
+        sameCity: me?.city_id != null && me.city_id === prof.city_id,
+        sameDiet: me?.diet != null && me.diet === prof.diet,
+        sameCommunity:
+          (me?.community_id != null && me.community_id === prof.community_id) ||
+          (me?.religion_id != null && me.religion_id === prof.religion_id),
+      };
+      const rule =
+        (signals.sameCity ? 1 : 0) + (signals.sameDiet ? 1 : 0) + (signals.sameCommunity ? 1 : 0);
+      const similarity = Math.max(0, Math.min(1, (1 - r.distance) / 2));
+      const score =
+        w.similarity * similarity +
+        w.rule * (rule / 3) +
+        w.activity * activityScore(prof.last_active_at) +
+        w.verification * (prof.verification_tier / 3);
+      ranked.push({ userId: r.userId, score, similarity, signals, reasonCodes: check.reasonCodes });
+    }
+    ranked.sort((a, b) => b.score - a.score || (a.userId < b.userId ? -1 : 1));
+    return ranked.slice(0, topN);
+  }
+
+  /** Steps 3-5 in one call: ANN retrieval → reciprocity → weighted pre-rank. */
+  async rankCandidates(
+    forUserId: string,
+    opts?: { topK?: number; topN?: number },
+  ): Promise<RankedCandidate[]> {
+    const retrieved = await this.retrieveCandidates(forUserId, { topK: opts?.topK });
+    return this.preRankCandidates(forUserId, retrieved, { topN: opts?.topN });
+  }
+
+  /**
+   * Exposure cap (DESIGN.md §8 step 8) as a pure function: keeps candidates
+   * whose shown-count is below the cap. The P3-07 caller supplies
+   * shownCounts (e.g. from daily_matches); an empty map is a no-op.
+   */
+  applyExposureCap<T extends { userId: string }>(
+    candidates: T[],
+    shownCounts: ReadonlyMap<string, number>,
+    cap?: number,
+  ): T[] {
+    const c = cap ?? this.config.MATCHING_EXPOSURE_DAILY_CAP;
+    if (!Number.isInteger(c) || c <= 0) {
+      throw new ForbiddenException('invalid exposure cap');
+    }
+    return candidates.filter((cand) => (shownCounts.get(cand.userId) ?? 0) < c);
+  }
+
+  /** Validates the four pre-rank weights (positive finite numbers) when used. */
+  private preRankWeights() {
+    const w = {
+      similarity: this.config.MATCHING_WEIGHT_SIMILARITY,
+      rule: this.config.MATCHING_WEIGHT_RULE,
+      activity: this.config.MATCHING_WEIGHT_ACTIVITY,
+      verification: this.config.MATCHING_WEIGHT_VERIFICATION,
+    };
+    for (const [key, value] of Object.entries(w)) {
+      if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+        throw new ForbiddenException(`invalid matching weight: ${key}`);
+      }
+    }
+    return w;
   }
 
   /**

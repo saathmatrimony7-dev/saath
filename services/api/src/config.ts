@@ -98,6 +98,21 @@ const configSchema = z.object({
   // The Stage-2 pre-screen cap (top N per user per day) lands with P3-05.
   MATCHING_POOL_LIMIT: z.coerce.number().int().positive().default(5000),
 
+  // Matching retrieval + pre-rank (P3-04, DESIGN.md §8 steps 3-5).
+  // All pre-rank components are normalised to [0,1] before weighting
+  // (rule score is signal-count / 3); the default weights sum to 1.0
+  // (similarity 0.5, rule 0.2, activity 0.15, verification 0.15).
+  MATCHING_RETRIEVAL_TOP_K: z.coerce.number().int().positive().default(200),
+  MATCHING_PRERANK_TOP_N: z.coerce.number().int().positive().default(30),
+  MATCHING_WEIGHT_SIMILARITY: z.coerce.number().positive().default(0.5),
+  MATCHING_WEIGHT_RULE: z.coerce.number().positive().default(0.2),
+  MATCHING_WEIGHT_ACTIVITY: z.coerce.number().positive().default(0.15),
+  MATCHING_WEIGHT_VERIFICATION: z.coerce.number().positive().default(0.15),
+
+  // Exposure control (DESIGN.md §8 step 8; pure filter here, P3-07 supplies
+  // the shown-counts): max times a candidate may be shown per day.
+  MATCHING_EXPOSURE_DAILY_CAP: z.coerce.number().int().positive().default(5),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
