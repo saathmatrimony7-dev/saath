@@ -45,6 +45,8 @@ model User {
   reportsReceived UserReport[] @relation("reportsReceived")
   riskScore RiskScore?
   safetyCases SafetyCase[]
+  screeningA ScreeningResult[] @relation("screeningA")
+  screeningB ScreeningResult[] @relation("screeningB")
   adminElevations AdminElevation[]
   adminAudit AdminAudit[]
 
@@ -232,6 +234,33 @@ model DisclosurePolicy {
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("disclosure_policies")
+}
+
+/// A5/A6 screening verdict cache (P3-05, DESIGN.md A7.3/A7.4 + A9). One row
+/// per normalised pair; invalidated by preference-version mismatch. Written
+/// only by the A6 broker via the write_screening_result tool; service-context
+/// RLS only — pair members never read rows directly.
+model ScreeningResult {
+  id           String   @id @default(uuid()) @db.Uuid
+  userA        String   @map("user_a") @db.Uuid
+  userB        String   @map("user_b") @db.Uuid
+  prefVersionA Int      @map("pref_version_a")
+  prefVersionB Int      @map("pref_version_b")
+  verdict      String // COMPATIBLE | PARTIAL | INCOMPATIBLE
+  score        Float    @db.DoublePrecision // 0..1 (CHECK in migration)
+  topics       Json // [{topic, result}] — closed vocab, no free text
+  reasonCodes  String[] @map("reason_codes") // closed vocabulary
+  modelVersion String   @map("model_version")
+  inputsHash   String   @map("inputs_hash") // sha256, audit (A7.4.6)
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  userARef     User     @relation("screeningA", fields: [userA], references: [id], onDelete: Cascade)
+  userBRef     User     @relation("screeningB", fields: [userB], references: [id], onDelete: Cascade)
+
+  @@unique([userA, userB], map: "screening_results_pair_key")
+  @@index([expiresAt])
+  @@map("screening_results")
 }
 
 model Session {

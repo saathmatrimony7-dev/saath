@@ -23,6 +23,10 @@ class AgentConfig:
     llm_model_large: str = "claude-opus-5-5"
     # A1 interview turn cap (DESIGN.md Q3: 25 turns then extract + confirm).
     onboarding_max_turns: int = 25
+    # A6 screening broker Stage-3 combine (rule 13: thresholds are config).
+    screening_score_compatible: float = 0.75
+    screening_score_partial: float = 0.45
+    screening_stage2_max_topics: int = 12
 
 
 def load_config(env: dict[str, str] | None = None) -> AgentConfig:
@@ -42,4 +46,7 @@ def load_config(env: dict[str, str] | None = None) -> AgentConfig:
         llm_model_mid=e.get("LLM_MODEL_MID", "claude-sonnet-5-5"),
         llm_model_large=e.get("LLM_MODEL_LARGE", "claude-opus-5-5"),
         onboarding_max_turns=int(e.get("ONBOARDING_MAX_TURNS", "25")),
+        screening_score_compatible=float(e.get("SCREENING_SCORE_COMPATIBLE", "0.75")),
+        screening_score_partial=float(e.get("SCREENING_SCORE_PARTIAL", "0.45")),
+        screening_stage2_max_topics=int(e.get("SCREENING_STAGE2_MAX_TOPICS", "12")),
     )

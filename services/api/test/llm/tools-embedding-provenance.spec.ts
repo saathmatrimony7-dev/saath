@@ -157,7 +157,7 @@ describe('listStaleEmbeddings (P3-02)', () => {
     expect(afterPatch?.profile_version).toBeGreaterThan(
       afterPatch?.embedding_profile_version ?? 0,
     );
-    expect(await profiles.listStaleEmbeddings(100)).toContain(userId);
+    expect(await profiles.listStaleEmbeddings(10_000)).toContain(userId);
 
     // Re-embed with the new profile version → fresh again.
     const save = await saveEmbedding({
@@ -168,7 +168,7 @@ describe('listStaleEmbeddings (P3-02)', () => {
       prefVersion: 1,
     });
     expect(save.status).toBe(200);
-    expect(await profiles.listStaleEmbeddings(100)).not.toContain(userId);
+    expect(await profiles.listStaleEmbeddings(10_000)).not.toContain(userId);
   });
 
   it('re-flags on preference version change, clears after re-embed', async () => {
@@ -180,7 +180,7 @@ describe('listStaleEmbeddings (P3-02)', () => {
     expect(put.status).toBe(200);
     const prefVersion = (put.json as unknown as { preference: { version: number } }).preference
       .version;
-    expect(await profiles.listStaleEmbeddings(100)).toContain(userId);
+    expect(await profiles.listStaleEmbeddings(10_000)).toContain(userId);
 
     const current = await readProvenance(userId);
     const save = await saveEmbedding({

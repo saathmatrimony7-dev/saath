@@ -13,6 +13,7 @@ import { WhatsAppModule } from './modules/channels/whatsapp/whatsapp.module';
 import { KycModule } from './modules/kyc/kyc.module';
 import { SafetyModule } from './modules/safety/safety.module';
 import { MatchingModule } from './modules/matching/matching.module';
+import { ScreeningModule } from './modules/screening/screening.module';
 import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
@@ -29,6 +30,7 @@ import { AdminModule } from './modules/admin/admin.module';
     KycModule,
     SafetyModule,
     MatchingModule,
+    ScreeningModule,
     AdminModule,
   ],
   controllers: [HealthController, MeController],

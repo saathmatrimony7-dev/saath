@@ -22,6 +22,7 @@ from .llm_gateway_client import LlmGatewayClient
 from .onboarding.engine import A1OnboardingEngine, InterviewState
 from .onboarding.tools_client import CoreToolsPort
 from .moderation import A9Classifier
+from .screening import A6ScreeningBroker, ScreeningCoreClient, ScreeningThresholds
 from .tokens import ScopedTokenClaims, ScopedTokenError, verify_token
 
 
@@ -45,6 +46,15 @@ class ModerationClassifyBody(BaseModel):
 
     text: str = Field(min_length=1, max_length=2000)
     context: str = Field(default="report", max_length=32)  # report | chat | bio
+
+
+class ScreeningRunBody(BaseModel):
+    """A6 screening run (P3-05). Service-token route; the broker is neutral."""
+
+    model_config = {"extra": "forbid"}
+
+    aUserId: str
+    bUserId: str
 
 
 def require_service_token(request: Request, x_internal_token: str | None = Header(default=None)) -> None:
@@ -124,5 +134,26 @@ def create_app(config: AgentConfig | None = None) -> FastAPI:
         cfg: AgentConfig = app.state.config
         verdict = A9Classifier(llm=LlmGatewayClient(cfg)).classify(body.text)
         return verdict.model_dump()
+
+    @app.post("/internal/screening/run")
+    def screening_run(
+        body: ScreeningRunBody,
+        _token: None = Depends(require_service_token),
+    ) -> dict[str, object]:
+        """A6: full §7.3 protocol for one pair. Returns the strict verdict
+        JSON only — no snapshot text, no advocate payloads (rule 6)."""
+        cfg: AgentConfig = app.state.config
+        thresholds = ScreeningThresholds(
+            score_compatible=cfg.screening_score_compatible,
+            score_partial=cfg.screening_score_partial,
+            stage2_max_topics=cfg.screening_stage2_max_topics,
+        )
+        broker = A6ScreeningBroker(
+            llm=LlmGatewayClient(cfg),
+            tools=ScreeningCoreClient(cfg),
+            thresholds=thresholds,
+        )
+        verdict = broker.screen_pair(body.aUserId, body.bUserId)
+        return verdict.model_dump(mode="json")
 
     return app

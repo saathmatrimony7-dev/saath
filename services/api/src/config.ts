@@ -113,6 +113,15 @@ const configSchema = z.object({
   // the shown-counts): max times a candidate may be shown per day.
   MATCHING_EXPOSURE_DAILY_CAP: z.coerce.number().int().positive().default(5),
 
+  // Screening broker (P3-05, DESIGN.md §7): Core owns the verdict cache, the
+  // redacted-snapshot contract and the audit-hash material. Stage 2/3 LLM
+  // weights and thresholds live in the agents service config.
+  // model_version is pinned and must match the broker's (rule 13, §7.4.6).
+  SCREENING_MODEL_VERSION: z.string().max(32).default('a6-screen-v1'),
+  SCREENING_RULES_VERSION: z.string().max(32).default('screening-rules-v1'),
+  SCREENING_RESULT_TTL_DAYS: z.coerce.number().int().positive().default(30),
+  SCREENING_MAX_TOPICS: z.coerce.number().int().positive().default(12),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
