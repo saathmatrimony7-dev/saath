@@ -192,6 +192,27 @@ export class PhotosService {
     );
   }
 
+  /**
+   * P3-08 feed card: the candidate's first approved photo as a short-lived
+   * signed URL. Service-context read — the caller is not the owner; WHETHER
+   * a card shows it is gated by the candidate's disclosure policy in the
+   * matching feed (minimal share level omits it).
+   */
+  async getFeedPhoto(candidateId: string): Promise<{ id: string; url: string } | null> {
+    const photo = await this.prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT set_config('app.service', 'photos', true)`;
+      return tx.photo.findFirst({
+        where: { userId: candidateId, moderationStatus: 'approved' },
+        orderBy: [{ isPrimary: 'desc' }, { sortOrder: 'asc' }, { createdAt: 'asc' }],
+      });
+    });
+    if (!photo) return null;
+    return {
+      id: photo.id,
+      url: this.storage.presignGet(photo.storageKey, this.config.PHOTOS_URL_TTL_SEC),
+    };
+  }
+
   private view(
     row: {
       id: string;

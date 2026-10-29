@@ -1,0 +1,1482 @@
+{
+  "ts": "20261027T143543Z",
+  "thresholds": {
+    "stratum_min_pass": 0.8,
+    "stratum_max_spread": 0.2,
+    "pairs_per_stratum": 4
+  },
+  "n": 114,
+  "strata": {
+    "n": 72,
+    "min_rate": 1.0,
+    "spread": 0.0,
+    "per_stratum": {
+      "female/hindu-brahmin/mumbai": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "female/hindu-brahmin/jaipur": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "female/hindu-brahmin/kochi": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "female/hindu-patel/mumbai": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "female/hindu-patel/jaipur": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "female/hindu-patel/kochi": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "female/muslim/mumbai": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "female/muslim/jaipur": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "female/muslim/kochi": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/hindu-brahmin/mumbai": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/hindu-brahmin/jaipur": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/hindu-brahmin/kochi": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/hindu-patel/mumbai": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/hindu-patel/jaipur": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/hindu-patel/kochi": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/muslim/mumbai": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/muslim/jaipur": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      },
+      "male/muslim/kochi": {
+        "n": 4,
+        "pass": 4,
+        "rate": 1.0
+      }
+    },
+    "pass": true
+  },
+  "twins": {
+    "n": 36,
+    "all_passed": true,
+    "distinct_verdicts": [
+      "COMPATIBLE"
+    ],
+    "distinct_scores": [
+      1.0
+    ],
+    "pass": true
+  },
+  "controls": {
+    "n": 6,
+    "incompatible": 6,
+    "pass": true
+  },
+  "contract": {
+    "fields_rejected": [
+      "community",
+      "religion",
+      "city",
+      "communityId",
+      "religionId",
+      "gender"
+    ],
+    "fields_accepted": [],
+    "pass": true
+  },
+  "rows": [
+    {
+      "id": "stratum-female-hindu-brahmin-mumbai-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 4
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-mumbai-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-mumbai-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-mumbai-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-jaipur-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-jaipur-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-jaipur-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-jaipur-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-kochi-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-kochi-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-kochi-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-brahmin-kochi-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-brahmin",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-mumbai-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-mumbai-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-mumbai-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-mumbai-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-jaipur-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-jaipur-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-jaipur-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-jaipur-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-kochi-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-kochi-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-kochi-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-hindu-patel-kochi-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "hindu-patel",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-mumbai-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-mumbai-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-mumbai-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-mumbai-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-jaipur-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-jaipur-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-jaipur-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-jaipur-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-kochi-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-kochi-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-kochi-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-female-muslim-kochi-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "female",
+        "community": "muslim",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-mumbai-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-mumbai-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-mumbai-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-mumbai-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-jaipur-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-jaipur-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-jaipur-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-jaipur-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-kochi-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-kochi-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-kochi-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-brahmin-kochi-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-brahmin",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-mumbai-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-mumbai-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-mumbai-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-mumbai-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-jaipur-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-jaipur-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-jaipur-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-jaipur-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-kochi-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-kochi-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-kochi-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-hindu-patel-kochi-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "hindu-patel",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-mumbai-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-mumbai-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-mumbai-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-mumbai-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "mumbai"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-jaipur-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-jaipur-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-jaipur-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-jaipur-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "jaipur"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-kochi-0",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-kochi-1",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-kochi-2",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "stratum-male-muslim-kochi-3",
+      "kind": "stratum",
+      "stratum": {
+        "gender": "male",
+        "community": "muslim",
+        "region": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-0",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-1",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-2",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-3",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-4",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-5",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-6",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-7",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-8",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-9",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-10",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-community-11",
+      "kind": "twin",
+      "stratum": {
+        "axis": "community",
+        "value_a": "hindu-brahmin",
+        "value_b": "muslim"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-0",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-1",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-2",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-3",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-4",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-5",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-6",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-7",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-8",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-9",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-10",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-gender-11",
+      "kind": "twin",
+      "stratum": {
+        "axis": "gender",
+        "value_a": "female",
+        "value_b": "male"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-0",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-1",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-2",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-3",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-4",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-5",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-6",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-7",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-8",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-9",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-10",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "twin-region-11",
+      "kind": "twin",
+      "stratum": {
+        "axis": "region",
+        "value_a": "mumbai",
+        "value_b": "kochi"
+      },
+      "verdict": "COMPATIBLE",
+      "score": 1.0,
+      "ms": 0
+    },
+    {
+      "id": "control-0",
+      "kind": "control",
+      "stratum": {},
+      "verdict": "INCOMPATIBLE",
+      "score": 0.0,
+      "ms": 0
+    },
+    {
+      "id": "control-1",
+      "kind": "control",
+      "stratum": {},
+      "verdict": "INCOMPATIBLE",
+      "score": 0.0,
+      "ms": 0
+    },
+    {
+      "id": "control-2",
+      "kind": "control",
+      "stratum": {},
+      "verdict": "INCOMPATIBLE",
+      "score": 0.0,
+      "ms": 0
+    },
+    {
+      "id": "control-3",
+      "kind": "control",
+      "stratum": {},
+      "verdict": "INCOMPATIBLE",
+      "score": 0.0,
+      "ms": 0
+    },
+    {
+      "id": "control-4",
+      "kind": "control",
+      "stratum": {},
+      "verdict": "INCOMPATIBLE",
+      "score": 0.0,
+      "ms": 0
+    },
+    {
+      "id": "control-5",
+      "kind": "control",
+      "stratum": {},
+      "verdict": "INCOMPATIBLE",
+      "score": 0.0,
+      "ms": 0
+    }
+  ],
+  "pass": true
+}

@@ -59,4 +59,11 @@ export class MatchingInternalController {
   ) {
     return this.profiles.listStaleEmbeddings(query.limit ?? 1000);
   }
+
+  /** Nightly batch enumeration (P3-07): users eligible to receive a feed. */
+  @Post('batch-users')
+  @HttpCode(HttpStatus.OK)
+  async listBatchUsers() {
+    return { userIds: await this.matching.listBatchUserIds() };
+  }
 }

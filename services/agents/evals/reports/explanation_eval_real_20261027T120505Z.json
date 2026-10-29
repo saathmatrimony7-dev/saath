@@ -1,0 +1,224 @@
+{
+  "mode": "real",
+  "ts": "20261027T120505Z",
+  "n": 10,
+  "with_facts": 9,
+  "generated": 9,
+  "failed": [],
+  "mock_poison_leak": false,
+  "rows": [
+    {
+      "id": "city-diet-en",
+      "locale": "en",
+      "facts": [
+        "SHARED_CITY",
+        "SHARED_DIET"
+      ],
+      "poisoned": [],
+      "got": "You are both based in the same city. You share the same diet.",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 74
+    },
+    {
+      "id": "community-verified-en",
+      "locale": "en",
+      "facts": [
+        "SHARED_COMMUNITY",
+        "BOTH_VERIFIED"
+      ],
+      "poisoned": [],
+      "got": "You belong to the same community. You are both verified members.",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 6
+    },
+    {
+      "id": "religion-active-en",
+      "locale": "en",
+      "facts": [
+        "SHARED_RELIGION",
+        "BOTH_RECENTLY_ACTIVE"
+      ],
+      "poisoned": [],
+      "got": "You share the same religion. You have both been active recently.",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 4
+    },
+    {
+      "id": "community-hi",
+      "locale": "hi",
+      "facts": [
+        "SHARED_COMMUNITY",
+        "SHARED_DIET"
+      ],
+      "poisoned": [],
+      "got": "आप दोनों एक ही समुदाय से हैं। आप दोनों की डाइट एक जैसी है।",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 4
+    },
+    {
+      "id": "city-verified-hi",
+      "locale": "hi",
+      "facts": [
+        "SHARED_CITY",
+        "BOTH_VERIFIED"
+      ],
+      "poisoned": [],
+      "got": "आप दोनों एक ही शहर में रहते हैं। आप दोनों सत्यापित सदस्य हैं।",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 6
+    },
+    {
+      "id": "religion-ta",
+      "locale": "ta",
+      "facts": [
+        "SHARED_RELIGION",
+        "SHARED_COMMUNITY"
+      ],
+      "poisoned": [],
+      "got": "இருவருக்கும் ஒரே மதம். இருவரும் ஒரே சமூகத்தைச் சேர்ந்தவர்கள்.",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 5
+    },
+    {
+      "id": "active-ta",
+      "locale": "ta",
+      "facts": [
+        "BOTH_RECENTLY_ACTIVE",
+        "SHARED_CITY"
+      ],
+      "poisoned": [],
+      "got": "இருவரும் சமீபத்தில் செயலில் இருந்தீர்கள். இருவரும் ஒரே நகரத்தில் இருக்கிறீர்கள்.",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 6
+    },
+    {
+      "id": "single-verified-en",
+      "locale": "en",
+      "facts": [
+        "BOTH_VERIFIED"
+      ],
+      "poisoned": [],
+      "got": "You are both verified members.",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 4
+    },
+    {
+      "id": "no-facts-en",
+      "locale": "en",
+      "facts": [],
+      "poisoned": [],
+      "got": null,
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 0
+    },
+    {
+      "id": "poison-reason-tags-en",
+      "locale": "en",
+      "facts": [
+        "SHARED_CITY",
+        "AGE",
+        "COMMUNITY",
+        "DEALBREAKER_X"
+      ],
+      "poisoned": [
+        "AGE",
+        "COMMUNITY",
+        "DEALBREAKER_X"
+      ],
+      "got": "You are both based in the same city.",
+      "checks": {
+        "none_when_no_facts": true,
+        "no_html": true,
+        "no_pii": true,
+        "length_cap": true,
+        "no_reason_vocab": true,
+        "locale": true
+      },
+      "all_pass": true,
+      "error": null,
+      "ms": 14
+    }
+  ],
+  "pass": true
+}

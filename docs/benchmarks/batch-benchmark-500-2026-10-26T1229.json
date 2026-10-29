@@ -1,0 +1,19 @@
+{
+  "benchUsers": 500,
+  "batchDate": "2026-10-26",
+  "workers": 8,
+  "seedMs": 1571,
+  "batchMs": 57861,
+  "perUserMs": 114.3,
+  "extrapolated100kMinutes": 192.9,
+  "dbSize": "17 MB",
+  "users": 500,
+  "processed": 500,
+  "published": 730,
+  "screeningCalls": 3067,
+  "passedScreening": 2785,
+  "errors": 0,
+  "errorIds": [],
+  "ms": 57129,
+  "exitCode": 0
+}
