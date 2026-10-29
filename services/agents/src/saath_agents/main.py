@@ -18,11 +18,14 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
 from pydantic import BaseModel, Field
 
 from .config import AgentConfig, load_config
+from .coordinator import A8Coordinator, CoordinatorFacts
+from .family import A7FamilyLiaison, FamilySignalItem
 from .llm_gateway_client import LlmGatewayClient
 from .onboarding.engine import A1OnboardingEngine, InterviewState
 from .onboarding.tools_client import CoreToolsPort
 from .moderation import A9Classifier
 from .screening import A6ScreeningBroker, ScreeningCoreClient, ScreeningThresholds
+from .batch import default_batch_date, run_batch
 from .tokens import ScopedTokenClaims, ScopedTokenError, verify_token
 
 
@@ -55,6 +58,39 @@ class ScreeningRunBody(BaseModel):
 
     aUserId: str
     bUserId: str
+
+
+class BatchRunBody(BaseModel):
+    """Nightly batch trigger (P3-07). Service-token route; returns stats only."""
+
+    model_config = {"extra": "forbid"}
+
+    batchDate: str | None = Field(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")
+
+
+class CoordinatorSuggestBody(BaseModel):
+    """A8 coordinator suggestions (P4-09). Service-token route. Inputs are
+    closed-vocabulary conversation facts only — chat bodies (C4) never
+    enter this payload."""
+
+    model_config = {"extra": "forbid"}
+
+    userId: str
+    conversationId: str
+    locale: str = "en"
+    origin: str = "mutual"
+    contactShared: bool = False
+
+
+class FamilySummariseBody(BaseModel):
+    """A7 family digest (P3-10). Service-token route; STRUCTURED SIGNALS ONLY —
+    no comments ever enter this payload (no C4 material crosses to the LLM)."""
+
+    model_config = {"extra": "forbid"}
+
+    ownerId: str
+    locale: str = "en"
+    items: list[FamilySignalItem] = Field(default_factory=list)
 
 
 def require_service_token(request: Request, x_internal_token: str | None = Header(default=None)) -> None:
@@ -155,5 +191,43 @@ def create_app(config: AgentConfig | None = None) -> FastAPI:
         )
         verdict = broker.screen_pair(body.aUserId, body.bUserId)
         return verdict.model_dump(mode="json")
+
+    @app.post("/internal/batch/run")
+    def batch_run(
+        body: BatchRunBody,
+        _token: None = Depends(require_service_token),
+    ) -> dict[str, object]:
+        """Runs the full §8 nightly batch for one date (idempotent re-runs).
+        Returns aggregate stats only — no per-user data."""
+        cfg: AgentConfig = app.state.config
+        stats = run_batch(cfg, body.batchDate or default_batch_date())
+        return stats
+
+    @app.post("/internal/coordinator/suggest")
+    def coordinator_suggest(
+        body: CoordinatorSuggestBody,
+        _token: None = Depends(require_service_token),
+    ) -> dict[str, object]:
+        """A8: icebreakers for the caller's own user. Suggestions only — the
+        coordinator never sends anything to the other person (§6.1 A8)."""
+        facts = CoordinatorFacts(origin=body.origin, contact_shared=body.contactShared)
+        suggestion = A8Coordinator().suggest(locale=body.locale, facts=facts)
+        return {"icebreakers": suggestion.icebreakers, "slots": suggestion.slots}
+
+    @app.post("/internal/family/summarise")
+    def family_summarise(
+        body: FamilySummariseBody,
+        _token: None = Depends(require_service_token),
+    ) -> dict[str, str]:
+        """A7: digest of structured family feedback in the owner's language.
+        Returns the summary text only."""
+        cfg: AgentConfig = app.state.config
+        liaison = A7FamilyLiaison(llm=LlmGatewayClient(cfg))
+        summary = liaison.summarise(
+            owner_id=body.ownerId,
+            locale=body.locale if body.locale in ("en", "hi", "ta") else "en",
+            items=body.items,
+        )
+        return {"summary": summary}
 
     return app

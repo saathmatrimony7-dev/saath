@@ -27,6 +27,18 @@ class AgentConfig:
     screening_score_compatible: float = 0.75
     screening_score_partial: float = 0.45
     screening_stage2_max_topics: int = 12
+    # A4 matchmaker + nightly batch (DESIGN.md §8; rule 13: config not code).
+    matching_stage2_max_per_user: int = 30
+    matching_daily_publish_count: int = 3
+    matching_exposure_daily_cap: int = 5
+    matching_final_weight_screening: float = 0.7
+    matching_final_weight_prerank: float = 0.3
+    # A4 explanations (P3-09, §8 step 9; mid tier via the LLM Gateway).
+    explanation_max_chars: int = 280
+    explanation_max_claims: int = 3
+    explanation_max_tokens: int = 220
+    # Nightly batch runner concurrency (Q4: script/trigger now, scheduler P5).
+    batch_workers: int = 8
 
 
 def load_config(env: dict[str, str] | None = None) -> AgentConfig:
@@ -49,4 +61,13 @@ def load_config(env: dict[str, str] | None = None) -> AgentConfig:
         screening_score_compatible=float(e.get("SCREENING_SCORE_COMPATIBLE", "0.75")),
         screening_score_partial=float(e.get("SCREENING_SCORE_PARTIAL", "0.45")),
         screening_stage2_max_topics=int(e.get("SCREENING_STAGE2_MAX_TOPICS", "12")),
+        matching_stage2_max_per_user=int(e.get("MATCHING_STAGE2_MAX_PER_USER", "30")),
+        matching_daily_publish_count=int(e.get("MATCHING_DAILY_PUBLISH_COUNT", "3")),
+        matching_exposure_daily_cap=int(e.get("MATCHING_EXPOSURE_DAILY_CAP", "5")),
+        matching_final_weight_screening=float(e.get("MATCHING_FINAL_WEIGHT_SCREENING", "0.7")),
+        matching_final_weight_prerank=float(e.get("MATCHING_FINAL_WEIGHT_PRERANK", "0.3")),
+        explanation_max_chars=int(e.get("EXPLANATION_MAX_CHARS", "280")),
+        explanation_max_claims=int(e.get("EXPLANATION_MAX_CLAIMS", "3")),
+        explanation_max_tokens=int(e.get("EXPLANATION_MAX_TOKENS", "220")),
+        batch_workers=int(e.get("BATCH_WORKERS", "8")),
     )

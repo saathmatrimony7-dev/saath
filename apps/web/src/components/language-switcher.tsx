@@ -19,7 +19,7 @@ export function LanguageSwitcher() {
           href={`/${l}`}
           onClick={(e) => {
             e.preventDefault();
-            const rest = window.location.pathname.replace(/^\/(en|hi|ta)/, '');
+            const rest = window.location.pathname.replace(/^\/(en|hi|ta|te|bn)/, '');
             window.location.assign(`/${l}${rest}`);
           }}
           aria-current={l === locale ? 'true' : undefined}

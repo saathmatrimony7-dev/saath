@@ -1,0 +1,10 @@
+{
+  "drill": "restore-within-rto",
+  "ranAt": "2026-10-28T16:54:15.186Z",
+  "method": "physical backup copy of a stopped embedded Postgres + fresh-instance restore (local stand-in for the RDS PITR runbook in docs/runbooks/dr-restore.md)",
+  "rtoMinutesBudget": 240,
+  "restoreMs": 2384,
+  "canaryFound": true,
+  "tableCount": 46,
+  "withinRto": true
+}

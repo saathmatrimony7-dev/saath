@@ -53,6 +53,9 @@ The files in `.claude/agents/` describe specialist roles: architect, backend-eng
 - `node scripts/p0-exit-check.mjs` → P0 exit-criteria evidence runner
 - `node scripts/p1-exit-check.mjs` → P1 exit-criteria evidence runner
 - `node scripts/p2-exit-check.mjs` → P2 exit-criteria evidence runner
+- `node scripts/p3-exit-check.mjs` -> P3 exit-criteria evidence runner (criterion 3 amended 2026-10-28: 2k smoke benchmark + shown-counts fix evidence; the 100k batch benchmark is deferred to post-P5 hardening)
+- `node scripts/p4-exit-check.mjs` -> P4 exit-criteria evidence runner (webhook replay idempotency, server-side paywall, chat contact masking)
+- `node scripts/p5-exit-check.mjs` -> P5 exit-criteria evidence runner (no open high/critical findings; DR restore drill within RTO via scripts/dr-drill.mjs; legal notices review-ready in docs/legal/)
 - `pnpm check:llm-isolation` → proves the Anthropic SDK is confined to the LLM Gateway
 - `pnpm test:e2e` → Playwright web e2e (sign up + onboarding in en/hi; boots the Core API e2e server with embedded PG + mock OTP/engine)
 - Local DB without Docker: `cd services/api && pnpm db:dev` (embedded Postgres 16); with Docker: `make db-up`

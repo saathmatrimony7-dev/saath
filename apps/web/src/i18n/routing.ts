@@ -1,8 +1,8 @@
 import { defineRouting } from 'next-intl/routing';
 
-/** P1 languages (DESIGN.md §1.3 starts with en + hi + ta). */
+/** P1 languages en/hi/ta; P5 adds te + bn (DESIGN.md §1.3 continues in P6). */
 export const routing = defineRouting({
-  locales: ['en', 'hi', 'ta'],
+  locales: ['en', 'hi', 'ta', 'te', 'bn'],
   defaultLocale: 'en',
   localePrefix: 'always',
 });

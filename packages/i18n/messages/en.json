@@ -39,5 +39,50 @@
     "confirmedBody": "Your profile is now live. You can edit it anytime from your account.",
     "notProvided": "Not provided yet",
     "confirmError": "Confirmation failed. Please try again."
+  },
+  "matches": {
+    "explanationAiLabel": "Explained by AI",
+    "preScreenedBadge": "Pre-screened ✓"
+  },
+  "family": {
+    "ownerTitle": "Your family",
+    "memberTitle": "Family shortlist",
+    "empty": "No family invites yet.",
+    "shortlistEmpty": "Nothing on the shortlist is visible right now.",
+    "summaryLabel": "Family digest",
+    "relationLabel": "Relation",
+    "relation": {
+      "parent": "Parent",
+      "sibling": "Sibling",
+      "child": "Child",
+      "guardian": "Guardian",
+      "other": "Other"
+    },
+    "status": {
+      "pending": "pending",
+      "accepted": "accepted",
+      "expired": "expired",
+      "revoked": "revoked"
+    },
+    "commentAllowed": "Allow comments",
+    "noComment": "comments off",
+    "createButton": "Create invite",
+    "tokenHint": "Share this one-time invite token with your family member:",
+    "acceptTitle": "Family invite",
+    "acceptBody": "You have been invited to view and comment on a family member's shortlist.",
+    "acceptButton": "Accept invite",
+    "acceptError": "That invite could not be accepted (invalid, used, or expired).",
+    "consentRequired": "Family sharing needs the owner's family-mode consent.",
+    "commentNotAllowed": "The owner has not allowed comments.",
+    "loadError": "Could not load the family view. Please try again.",
+    "cardAge": "{age} yrs",
+    "signalsSoFar": "Family signals",
+    "commentPlaceholder": "Optional comment for the owner…",
+    "signal": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "interested": "Interested",
+      "concern": "Concern"
+    }
   }
 }

@@ -122,6 +122,61 @@ const configSchema = z.object({
   SCREENING_RESULT_TTL_DAYS: z.coerce.number().int().positive().default(30),
   SCREENING_MAX_TOPICS: z.coerce.number().int().positive().default(12),
 
+  // A4 → A6 (P3-07): how Core runs the screening broker. mock returns a
+  // deterministic verdict (dev/test/benchmark, refused in production);
+  // http calls the agents service's service-token route.
+  SCREENING_BROKER_TRANSPORT: z.enum(['mock', 'http']).default('mock'),
+
+  // A7 family summariser (P3-10, DESIGN.md §6 A7, mid tier). mock renders a
+  // deterministic locale template (refused in production); http calls the
+  // agents service's service-token route.
+  FAMILY_SUMMARISER_TRANSPORT: z.enum(['mock', 'http']).default('mock'),
+  // Family invite token lifetime (P3-10, D7). Config, not code (rule 13).
+  FAMILY_INVITE_TTL_DAYS: z.coerce.number().int().positive().default(7),
+
+  // A4 publish (P3-07, §8 step 9 + Q6): matches written per user per batch
+  // run. Entitlement tiers (Free 1/wk, paid 3-5/day) read from config until
+  // the entitlements table lands with billing (P4, Q7).
+  MATCHING_DAILY_PUBLISH_COUNT: z.coerce.number().int().positive().default(3),
+
+  // Daily-feed interactions (P3-08): server-side entitlement caps until the
+  // entitlements table lands with billing (P4). Defaults are placeholders.
+  MATCHING_LIKE_DAILY_LIMIT: z.coerce.number().int().positive().default(10),
+  MATCHING_SHORTLIST_LIMIT: z.coerce.number().int().positive().default(50),
+
+  // Messaging (P4-01/02, DESIGN.md §14): free-tier message cap is plan-driven
+  // (plans.features.dailyMessageLimit); these bound the chat surface itself.
+  CHAT_MAX_MESSAGE_CHARS: z.coerce.number().int().positive().default(2000),
+
+  // Masked calls (P4-04, DESIGN.md §14 + D2): provider behind an interface;
+  // mock in dev/test. Numbers are never stored or exposed — provider_ref only.
+  CALL_PROVIDER: z.enum(['mock', 'exotel']).default('mock'),
+
+  // Notifications (P4-05, DESIGN.md §14): quiet hours (user-local minutes;
+  // treated as IST until per-user TZ capture lands with P5) + frequency cap.
+  NOTIF_QUIET_START_MIN: z.coerce.number().int().min(0).max(1439).default(1320), // 22:00
+  NOTIF_QUIET_END_MIN: z.coerce.number().int().min(0).max(1439).default(480), // 08:00
+  NOTIF_DAILY_CAP: z.coerce.number().int().positive().default(5),
+
+  // Billing (P4-06/07, DESIGN.md §13): Razorpay subscriptions + orders.
+  // Mock provider issues deterministic local refs (refused in production);
+  // the real API client lands with cloud billing wiring (P5).
+  RAZORPAY_PROVIDER: z.enum(['mock', 'razorpay']).default('mock'),
+  RAZORPAY_WEBHOOK_SECRET: z.string().min(16).default('dev-razorpay-webhook-secret'),
+  RAZORPAY_KEY_ID: z.string().optional(),
+  RAZORPAY_KEY_SECRET: z.string().optional(),
+
+  // A8 coordinator (P4-09, DESIGN.md §6.1 A8): suggests icebreakers/slots to
+  // its own user only — it never sends anything to the other person.
+  // Mock renders deterministic locale templates (refused in production).
+  COORDINATOR_TRANSPORT: z.enum(['mock', 'http']).default('mock'),
+
+  // DPDP flows (P5-01, DESIGN.md §10.2 + §2.2): grievance SLA (days) and the
+  // erasure retention window (days) before the sweeper hard-deletes (or, when
+  // billing records exist, anonymises) a deleted account.
+  GRIEVANCE_SLA_DAYS: z.coerce.number().int().positive().default(30),
+  PRIVACY_ERASE_RETENTION_DAYS: z.coerce.number().int().positive().default(30),
+
   // Consent ledger (P1-02): notice version stamped on every consent row.
   // Bump when the privacy notice text changes; do not reuse old versions.
   CONSENT_NOTICE_VERSION: z.string().default('2026-10-23.v1'),
@@ -162,6 +217,20 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     }
     if (cfg.MODERATION_AGENT_TRANSPORT === 'mock') {
       violations.push('MODERATION_AGENT_TRANSPORT=mock');
+    }
+    if (cfg.SCREENING_BROKER_TRANSPORT === 'mock') {
+      violations.push('SCREENING_BROKER_TRANSPORT=mock');
+    }
+    if (cfg.FAMILY_SUMMARISER_TRANSPORT === 'mock') {
+      violations.push('FAMILY_SUMMARISER_TRANSPORT=mock');
+    }
+    if (cfg.CALL_PROVIDER === 'mock') violations.push('CALL_PROVIDER=mock');
+    if (cfg.RAZORPAY_PROVIDER === 'mock') violations.push('RAZORPAY_PROVIDER=mock');
+    if (cfg.RAZORPAY_WEBHOOK_SECRET === 'dev-razorpay-webhook-secret') {
+      violations.push('RAZORPAY_WEBHOOK_SECRET is the development default');
+    }
+    if (cfg.COORDINATOR_TRANSPORT === 'mock') {
+      violations.push('COORDINATOR_TRANSPORT=mock');
     }
     if (!cfg.COOKIE_SECURE) violations.push('COOKIE_SECURE=false');
     if (violations.length > 0) {

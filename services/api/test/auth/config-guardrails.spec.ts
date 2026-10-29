@@ -20,6 +20,13 @@ const baseEnv = {
   KYC_PROVIDER: 'idfy',
   KYC_WEBHOOK_SECRET: 'prod-kyc-webhook-secret-0123456789',
   MODERATION_AGENT_TRANSPORT: 'http',
+  SCREENING_BROKER_TRANSPORT: 'http',
+  FAMILY_SUMMARISER_TRANSPORT: 'http',
+  // P4: messaging/billing/coordinator production wiring
+  CALL_PROVIDER: 'exotel',
+  RAZORPAY_PROVIDER: 'razorpay',
+  RAZORPAY_WEBHOOK_SECRET: 'prod-razorpay-webhook-secret-0123456789',
+  COORDINATOR_TRANSPORT: 'http',
   COOKIE_SECURE: 'true',
 } as NodeJS.ProcessEnv;
 
@@ -79,6 +86,40 @@ describe('production config guardrails', () => {
   it('refuses MODERATION_AGENT_TRANSPORT=mock in production', () => {
     expect(() => loadConfig({ ...baseEnv, MODERATION_AGENT_TRANSPORT: 'mock' })).toThrow(
       /MODERATION_AGENT_TRANSPORT=mock/,
+    );
+  });
+
+  it('refuses SCREENING_BROKER_TRANSPORT=mock in production', () => {
+    expect(() => loadConfig({ ...baseEnv, SCREENING_BROKER_TRANSPORT: 'mock' })).toThrow(
+      /SCREENING_BROKER_TRANSPORT=mock/,
+    );
+  });
+
+  it('refuses FAMILY_SUMMARISER_TRANSPORT=mock in production', () => {
+    expect(() => loadConfig({ ...baseEnv, FAMILY_SUMMARISER_TRANSPORT: 'mock' })).toThrow(
+      /FAMILY_SUMMARISER_TRANSPORT=mock/,
+    );
+  });
+
+  it('refuses CALL_PROVIDER=mock in production', () => {
+    expect(() => loadConfig({ ...baseEnv, CALL_PROVIDER: 'mock' })).toThrow(/CALL_PROVIDER=mock/);
+  });
+
+  it('refuses RAZORPAY_PROVIDER=mock in production', () => {
+    expect(() => loadConfig({ ...baseEnv, RAZORPAY_PROVIDER: 'mock' })).toThrow(
+      /RAZORPAY_PROVIDER=mock/,
+    );
+  });
+
+  it('refuses the development Razorpay webhook secret in production', () => {
+    expect(() => loadConfig({ ...baseEnv, RAZORPAY_WEBHOOK_SECRET: undefined })).toThrow(
+      /RAZORPAY_WEBHOOK_SECRET/,
+    );
+  });
+
+  it('refuses COORDINATOR_TRANSPORT=mock in production', () => {
+    expect(() => loadConfig({ ...baseEnv, COORDINATOR_TRANSPORT: 'mock' })).toThrow(
+      /COORDINATOR_TRANSPORT=mock/,
     );
   });
 });

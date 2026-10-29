@@ -32,7 +32,11 @@
       "@parcel/watcher"
     ],
     "overrides": {
-      "@swc/core": "1.15.33"
+      "@swc/core": "1.15.33",
+      "multer@<2.5.0": "^2.5.0",
+      "body-parser@<2.4.0": "^2.4.0",
+      "postcss@<8.5.23": "^8.5.31",
+      "deepmerge-ts@<8.0.0": "^8.0.0"
     }
   },
   "devDependencies": {

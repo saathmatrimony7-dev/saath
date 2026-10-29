@@ -6,7 +6,7 @@ import { isLocale, routing } from './i18n/routing';
 const intlMiddleware = createMiddleware(routing);
 
 /** Paths that require a session cookie (the API sets saath_at httpOnly). */
-const PROTECTED_SEGMENTS = ['/onboarding', '/profile'];
+const PROTECTED_SEGMENTS = ['/onboarding', '/profile', '/family'];
 
 export default function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

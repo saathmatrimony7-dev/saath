@@ -47,8 +47,29 @@ model User {
   safetyCases SafetyCase[]
   screeningA ScreeningResult[] @relation("screeningA")
   screeningB ScreeningResult[] @relation("screeningB")
+  dailyMatchRows DailyMatch[] @relation("dailyMatchOwner")
+  dailyMatchAppearances DailyMatch[] @relation("dailyMatchCandidate")
+  interactionsMade Interaction[] @relation("interactionsMade")
+  interactionsReceived Interaction[] @relation("interactionsReceived")
+  familyOwned FamilyAccount[] @relation("familyOwner")
+  familyMemberships FamilyAccount[] @relation("familyMember")
+  familyInvitesSent FamilyAccount[] @relation("familyInviter")
+  feedbackAuthored FamilyFeedback[] @relation("feedbackAuthor")
+  feedbackReceived FamilyFeedback[] @relation("feedbackOwner")
+  feedbackAbout FamilyFeedback[] @relation("feedbackCandidate")
   adminElevations AdminElevation[]
   adminAudit AdminAudit[]
+  conversationsA Conversation[] @relation("conversationsA")
+  conversationsB Conversation[] @relation("conversationsB")
+  messagesSent Message[] @relation("messagesSent")
+  notifications Notification[]
+  notificationSetting NotificationSetting?
+  subscriptions Subscription[]
+  payments Payment[]
+  invoices Invoice[]
+  entitlement Entitlement?
+  orders Order[]
+  dsrRequests DsrRequest[]
 
   @@map("users")
 }
@@ -261,6 +282,98 @@ model ScreeningResult {
   @@unique([userA, userB], map: "screening_results_pair_key")
   @@index([expiresAt])
   @@map("screening_results")
+}
+
+/// Daily feed rows (P3-07, DESIGN.md §8 step 9 + §9). One row per
+/// (user, candidate, batch_date); publish is a replace-set per
+/// (user, batch_date) so batch re-runs are idempotent. Explanations
+/// (P3-09) live in explanationI18n.
+model DailyMatch {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  candidateId     String   @map("candidate_id") @db.Uuid
+  batchDate       DateTime @db.Date @map("batch_date")
+  rank            Int
+  explanationI18n Json?    @map("explanation_i18n")
+  status          String   @default("published") // published | viewed | acted
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  user            User     @relation("dailyMatchOwner", fields: [userId], references: [id], onDelete: Cascade)
+  candidate       User     @relation("dailyMatchCandidate", fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, candidateId, batchDate], map: "daily_matches_pair_key")
+  @@index([userId, batchDate(sort: Desc)])
+  @@index([candidateId, batchDate])
+  @@map("daily_matches")
+}
+
+/// Likes / passes / shortlists (P3-08, DESIGN.md §9). One row per
+/// (actor, target, type); like⇄pass are exclusive dispositions (a post
+/// flips the row). Owner reads own rows only — a target never learns who
+/// liked/passed them (mutual-match reveal is P4).
+model Interaction {
+  id           String   @id @default(uuid()) @db.Uuid
+  actorUserId  String   @map("actor_user_id") @db.Uuid
+  targetUserId String   @map("target_user_id") @db.Uuid
+  type         String // like | pass | shortlist
+  reasonCode   String?  @map("reason_code")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  actor        User     @relation("interactionsMade", fields: [actorUserId], references: [id], onDelete: Cascade)
+  target       User     @relation("interactionsReceived", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@unique([actorUserId, targetUserId, type], map: "interactions_actor_target_type_key")
+  @@index([actorUserId, type, createdAt])
+  @@index([targetUserId, type])
+  @@map("interactions")
+}
+
+/// Family Mode v1 (P3-10, DESIGN.md §9 + D7). One row per (owner, member);
+/// member_user_id is NULL while the invite is pending (member binds at
+/// accept time). Permissions are view/comment only in v1 — anything beyond
+/// requires the owner's future approval, enforced by the service layer.
+model FamilyAccount {
+  id            String    @id @default(uuid()) @db.Uuid
+  profileUserId String    @map("profile_user_id") @db.Uuid
+  memberUserId  String?   @map("member_user_id") @db.Uuid
+  relation      String
+  permissions   Json      @default("{\"view\": true, \"comment\": true}")
+  invitedBy     String    @map("invited_by") @db.Uuid
+  status        String    @default("pending") // pending | accepted | expired | revoked
+  inviteTokenHash String? @map("invite_token_hash")
+  acceptedAt    DateTime? @map("accepted_at")
+  expiresAt     DateTime  @map("expires_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  owner         User      @relation("familyOwner", fields: [profileUserId], references: [id], onDelete: Cascade)
+  member        User?     @relation("familyMember", fields: [memberUserId], references: [id], onDelete: Cascade)
+  inviter       User      @relation("familyInviter", fields: [invitedBy], references: [id], onDelete: Cascade)
+  feedback      FamilyFeedback[]
+
+  @@unique([profileUserId, memberUserId], map: "accounts_family_owner_member_key")
+  @@map("accounts_family")
+}
+
+/// Structured family feedback on shortlisted candidates (P3-10, §9).
+/// comment_enc is C4 (field-level encrypted by the service). Signal is a
+/// closed vocabulary enforced by a migration CHECK.
+model FamilyFeedback {
+  id             String  @id @default(uuid()) @db.Uuid
+  familyAccountId String @map("family_account_id") @db.Uuid
+  familyMemberId String  @map("family_member_id") @db.Uuid
+  profileUserId  String  @map("profile_user_id") @db.Uuid
+  candidateId    String  @map("candidate_id") @db.Uuid
+  signal         String // approve | reject | interested | concern
+  commentEnc     Bytes?  @map("comment_enc")
+  createdAt      DateTime @default(now()) @map("created_at")
+  account        FamilyAccount @relation(fields: [familyAccountId], references: [id], onDelete: Cascade)
+  member         User      @relation("feedbackAuthor", fields: [familyMemberId], references: [id], onDelete: Cascade)
+  owner          User      @relation("feedbackOwner", fields: [profileUserId], references: [id], onDelete: Cascade)
+  candidate      User      @relation("feedbackCandidate", fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([profileUserId, createdAt])
+  @@index([candidateId])
+  @@map("family_feedback")
 }
 
 model Session {
@@ -503,4 +616,260 @@ model AdminAudit {
   @@index([actorId, createdAt(sort: Desc)])
   @@index([subjectKind, subjectId])
   @@map("admin_audit")
+}
+
+// --- P4-01: messaging (DESIGN.md §9 messaging + §14) ------------------------
+// Mutual-match chat (opens on mutual like, P4-03), C4-encrypted bodies,
+// pre-send contact masking, A9 moderation status, masked calls, notifications.
+
+/// One row per unordered user pair. (user_a, user_b) is canonical: user_a's
+/// uuid sorts before user_b's (service enforces on open). origin: 'mutual'
+/// (both liked) | 'intro' (intro-pack credit spent, P4-06).
+model Conversation {
+  id              String    @id @default(uuid()) @db.Uuid
+  userA           String    @map("user_a") @db.Uuid
+  userB           String    @map("user_b") @db.Uuid
+  origin          String    @default("mutual")
+  status          String    @default("open") // open | closed
+  openedAt        DateTime  @default(now()) @map("opened_at")
+  /// Per-side contact-sharing opt-in (§10.2); both true → contact_shared_at.
+  contactShareA   Boolean   @default(false) @map("contact_share_a")
+  contactShareB   Boolean   @default(false) @map("contact_share_b")
+  contactSharedAt DateTime? @map("contact_shared_at")
+  lastMessageAt   DateTime? @map("last_message_at")
+  /// A8 coordinator (P4-09): proposed call/meet slots (ISO strings, set by
+  /// the propose_slots tool — suggestions to own user only).
+  proposedSlots   Json?    @map("proposed_slots")
+  /// Latest post-meeting feedback (A8 record_meeting_feedback); notes are
+  /// C4-encrypted base64 inside the jsonb.
+  meetingFeedback Json?    @map("meeting_feedback")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  userARel        User      @relation("conversationsA", fields: [userA], references: [id], onDelete: Cascade)
+  userBRel        User      @relation("conversationsB", fields: [userB], references: [id], onDelete: Cascade)
+  messages        Message[]
+  callSessions    CallSession[]
+
+  @@unique([userA, userB])
+  @@index([userA, lastMessageAt(sort: Desc)])
+  @@index([userB, lastMessageAt(sort: Desc)])
+  @@map("conversations")
+}
+
+/// Chat message (C4: body_enc via FieldCrypto — plaintext never touches the
+/// DB/logs). moderation_status: pending | clean | flagged (A9 classify, P4-02).
+/// clientRef is the client idempotency key: re-POSTing the same (sender,
+/// clientRef) returns the original message instead of a duplicate.
+model Message {
+  id               String       @id @default(uuid()) @db.Uuid
+  conversationId   String       @map("conversation_id") @db.Uuid
+  senderId         String       @map("sender_id") @db.Uuid
+  bodyEnc          Bytes        @map("body_enc")
+  moderationStatus String       @default("pending") @map("moderation_status")
+  clientRef        String?      @map("client_ref")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  conversation     Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender           User         @relation("messagesSent", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, clientRef])
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+/// Masked call through the provider bridge (D2): numbers are never exposed;
+/// only provider_ref + duration are stored.
+model CallSession {
+  id             String       @id @default(uuid()) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  initiatedBy    String       @map("initiated_by") @db.Uuid
+  provider       String       @default("mock") // mock | exotel (provider interface, D2)
+  providerRef    String       @map("provider_ref")
+  status         String       @default("initiated") // initiated|ongoing|completed|failed|declined
+  startedAt      DateTime?    @map("started_at")
+  endedAt        DateTime?    @map("ended_at")
+  durationSec    Int?         @map("duration_s")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @default(now()) @map("updated_at")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("call_sessions")
+}
+
+/// In-app notification (§14: quiet hours, frequency caps, per-channel prefs).
+/// Payload is a closed-vocabulary jsonb (no free text, no C3/C4 data).
+/// Types: match.mutual | message.received | subscription.activated |
+/// intro_pack.credited | coordinator.suggestion.
+model Notification {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  type      String    // match.mutual | message.received | subscription.activated
+  payload   Json      @default("{}")
+  channel   String    @default("inapp") // inapp (whatsapp delivery is P5+ polish)
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("notifications")
+}
+
+/// Per-user notification preferences; defaults come from config (§14).
+model NotificationSetting {
+  userId        String   @id @map("user_id") @db.Uuid
+  /// Quiet hours in minutes-from-midnight IST (§14; user-TZ capture is P5+).
+  quietStartMin Int      @default(1320) @map("quiet_start_min") // 22:00
+  quietEndMin   Int      @default(480) @map("quiet_end_min") // 08:00
+  dailyCap      Int      @default(5) @map("daily_cap")
+  channels      Json     @default("{\"inapp\":true,\"whatsapp\":false}")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notification_settings")
+}
+
+// --- P4-06: billing (DESIGN.md §13) ----------------------------------------
+// Razorpay subscriptions + one-time intro packs, entitlements as the single
+// source of truth for feature gating, sequential GST-inclusive invoices.
+
+/// Plans + consumable intro packs. Reference data: world-readable through the
+/// API, service-only writes, seeded by the P4-06 migration. prices are
+/// GST-inclusive (§13 DECISION). features shape (documented):
+/// { "chat": bool, "calls": bool, "dailyMessageLimit": int (-1 = unlimited),
+///   "introCredits": int } — intro packs carry introCredits only.
+model Plan {
+  id         String  @id // slug: free | plus_monthly | plus_quarterly | intro_5
+  kind       String  @default("plan") // plan | intro_pack
+  pricePaise Int     @map("price_paise")
+  interval   String? // monthly | quarterly | 6m (null for intro packs)
+  /// GST rate in basis points (1800 = 18%); stored amount is tax-INCLUSIVE,
+  /// the invoice splits out the GST portion.
+  gstRateBps Int     @default(1800) @map("gst_rate_bps")
+  features   Json
+  active     Boolean @default(true)
+  sortOrder  Int     @default(0) @map("sort_order")
+
+  subscriptions Subscription[]
+  orders Order[]
+
+  @@map("plans")
+}
+
+/// Razorpay subscription lifecycle mirror. Status transitions ONLY from
+/// verified webhook processing (P4-07) or server-side provider confirmation.
+model Subscription {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  planId           String    @map("plan_id")
+  provider         String    @default("razorpay")
+  providerSubId    String    @unique @map("provider_sub_id")
+  /// Client idempotency key (§11): re-POSTing the same (user, clientRef)
+  /// returns the original subscription instead of a duplicate.
+  clientRef        String?   @map("client_ref")
+  status           String    @default("pending") // pending | active | cancelled | expired
+  currentPeriodEnd DateTime? @map("current_period_end")
+  /// Self-serve cancellation (§13): plan stays active to period end.
+  cancelAtPeriodEnd Boolean  @default(false) @map("cancel_at_period_end")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan             Plan      @relation(fields: [planId], references: [id])
+
+  @@index([userId, status])
+  @@map("subscriptions")
+}
+
+/// One-time order for a consumable intro pack (§13). The captured payment
+/// arrives by webhook (payment.captured, provider order id) and credits the
+/// pack's introCredits. clientRef is the client idempotency key.
+model Order {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  planId          String   @map("plan_id")
+  providerOrderId String   @unique @map("provider_order_id")
+  clientRef       String?  @map("client_ref")
+  amountPaise     Int      @map("amount_paise")
+  status          String   @default("pending") // pending | captured | failed
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            Plan     @relation(fields: [planId], references: [id])
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("orders")
+}
+
+/// Single source of truth for feature gating (§13): written ONLY from
+/// verified webhook processing (P4-07) or server-side confirmation — never
+/// from client claims. Effective features = the user's plan row overlaid
+/// with this row (intro credits, support grants, valid_until).
+model Entitlement {
+  userId       String    @id @map("user_id") @db.Uuid
+  features     Json      @default("{}")
+  introCredits Int       @default(0) @map("intro_credits")
+  validUntil   DateTime? @map("valid_until")
+  version      Int       @default(1)
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("entitlements")
+}
+
+/// Payment ledger (one row per provider payment attempt that reaches us).
+model Payment {
+  id                String   @id @default(uuid()) @db.Uuid
+  userId            String   @map("user_id") @db.Uuid
+  provider          String   @default("razorpay")
+  providerPaymentId String   @unique @map("provider_payment_id")
+  providerOrderId   String?  @map("provider_order_id")
+  providerSubId     String?  @map("provider_sub_id")
+  amountPaise       Int      @map("amount_paise")
+  status            String   @default("pending") // pending | captured | failed | refunded
+  invoiceId         String?  @unique @map("invoice_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("payments")
+}
+
+/// GST invoice, sequential per calendar year (INV-<year>-<seq>). PDF
+/// generation/storage lands with cloud infra (P5+ polish) — the ledger row
+/// (number, amounts, GST split) is the billing record of truth for now.
+model Invoice {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @map("user_id") @db.Uuid
+  invoiceNo          String   @unique @map("invoice_no")
+  lineItem           String   @map("line_item") // plan / pack code
+  amountPaise        Int      @map("amount_paise") // GST-inclusive
+  gstPaise           Int      @map("gst_paise") // GST portion of the amount
+  currency           String   @default("INR")
+  providerPaymentId  String?  @map("provider_payment_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("invoices")
+}
+
+/// DPDP data-principal requests (P5-01, DESIGN.md §10.2): access (export),
+/// erase (account deletion), grievance. `due_at` carries the statutory SLA
+/// clock (grievances: GRIEVANCE_SLA_DAYS; erasure: retention window before
+/// the sweeper hard-deletes/anonymises). Grievance text is C4-encrypted.
+model DsrRequest {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @map("user_id") @db.Uuid
+  type        String    // access | erase | grievance
+  status      String    @default("open") // open | in_progress | completed | cancelled
+  detailsEnc  Bytes?    @map("details_enc")
+  resolution  String?
+  dueAt       DateTime  @map("due_at")
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([type, status, dueAt])
+  @@map("dsr_requests")
 }
